@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Product - MusicStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">🎵 MusicStore</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" th:href="@{/seller/dashboard}">Dashboard</a>
+            <a class="nav-link" th:href="@{/seller/products}">My Products</a>
+            <a class="nav-link" th:href="@{/seller/profile}">My Profile</a>
+            <a class="nav-link" th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit"></i> Edit Product
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Error Message -->
+                    <div th:if="${param.error}" class="alert alert-danger">
+                        <th:block th:if="${param.error[0] == 'upload_failed'}">
+                            ❌ Failed to upload image! Please ensure the file is an image (JPG, PNG, WebP) and under 5MB.
+                        </th:block>
+                    </div>
+
+                    <form th:action="@{/seller/products/update}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="id" th:value="${product.id}">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Basic Information -->
+                                <h5 class="border-bottom pb-2 mb-3">Basic Information</h5>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Product Name *</label>
+                                    <input type="text" class="form-control" name="name"
+                                           th:value="${product.name}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Category *</label>
+                                    <select class="form-control" name="category" required>
+                                        <option th:each="category : ${categories}"
+                                                th:value="${category}"
+                                                th:selected="${category == product.category}"
+                                                th:text="${category}">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Brand *</label>
+                                    <input type="text" class="form-control" name="brand"
+                                           th:value="${product.brand}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Price ($) *</label>
+                                    <input type="number" class="form-control" name="price"
+                                           step="0.01" min="0"
+                                           th:value="${product.price}" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <!-- Inventory & Media -->
+                                <h5 class="border-bottom pb-2 mb-3">Inventory & Media</h5>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Stock Quantity *</label>
+                                    <input type="number" class="form-control" name="stockQuantity"
+                                           min="0" th:value="${product.stockQuantity}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Minimum Stock Level</label>
+                                    <input type="number" class="form-control" name="minStockLevel"
+                                           min="1" th:value="${product.minStockLevel}">
+                                </div>
+
+                                <!-- Current Image Preview -->
+                                <div class="mb-3" th:if="${product.imageUrl}">
+                                    <label class="form-label">Current Image</label>
+                                    <div class="position-relative" style="max-width: 300px;">
+                                        <img th:src="${product.imageUrl}" alt="Current Product Image" 
+                                             class="img-fluid rounded border" style="max-height: 200px; object-fit: cover;">
+                                    </div>
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" name="keepExistingImage" id="keepExistingImage" checked>
+                                        <label class="form-check-label" for="keepExistingImage">
+                                            Keep existing image
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Upload New Image</label>
+                                    <input type="file" class="form-control" name="imageFile" id="imageFile"
+                                           accept="image/jpeg,image/png,image/webp,image/jpg">
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i> Upload from your computer (JPG, PNG, WebP - Max 5MB)
+                                    </div>
+                                    
+                                    <!-- New Image Preview -->
+                                    <div id="imagePreview" class="mt-3" style="display: none;">
+                                        <label class="form-label">New Preview:</label>
+                                        <div class="position-relative" style="max-width: 300px;">
+                                            <img id="previewImg" src="" alt="Preview" class="img-fluid rounded border"
+                                                 style="max-height: 300px; object-fit: cover;">
+                                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                                                    id="removeImage" title="Remove new image">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Product Status -->
+                                <div class="mb-3">
+                                    <label class="form-label">Current Status</label>
+                                    <div class="p-3 rounded"
+                                         th:class="${product.stockQuantity == 0} ? 'bg-danger text-white' : (${product.lowStock} ? 'bg-warning text-dark' : 'bg-success text-white')">
+                                        <strong>
+                                            <th:block th:if="${product.stockQuantity == 0}">
+                                                ❌ Out of Stock
+                                            </th:block>
+                                            <th:block th:if="${product.lowStock and product.stockQuantity > 0}">
+                                                ⚠️ Low Stock
+                                            </th:block>
+                                            <th:block th:if="${product.stockQuantity > product.minStockLevel}">
+                                                ✅ In Stock
+                                            </th:block>
+                                        </strong>
+                                        <br>
+                                        <small>Current stock: <span th:text="${product.stockQuantity}"></span></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Product Description</label>
+                                    <textarea class="form-control" name="description" rows="4"
+                                              th:text="${product.description}"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timestamps -->
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <strong>Created:</strong>
+                                    <span th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                                </small>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <strong>Last Updated:</strong>
+                                    <span th:text="${#temporals.format(product.updatedAt, 'yyyy-MM-dd HH:mm')}"></span>
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a th:href="@{/seller/products}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Cancel
+                                    </a>
+                                    <div>
+                                        <a th:href="@{'/seller/products/delete/' + ${product.id}}"
+                                           class="btn btn-danger me-2 delete-btn"
+                                           th:data-productname="${product.name}">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Update Product
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Delete confirmation
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButton = document.querySelector('.delete-btn');
+        if (deleteButton) {
+            deleteButton.addEventListener('click', function(event) {
+                const productName = this.getAttribute('data-productname');
+                const confirmed = confirm('Are you sure you want to delete "' + productName + '"? This action cannot be undone.');
+
+                if (!confirmed) {
+                    event.preventDefault();
+                }
+            });
+        }
+    });
+    
+    // Image preview functionality
+    document.getElementById('imageFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('❌ Please select an image file!');
+                e.target.value = '';
+                return;
+            }
+            
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('❌ File size must not exceed 5MB!');
+                e.target.value = '';
+                return;
+            }
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('previewImg').src = event.target.result;
+                document.getElementById('imagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            
+            // Uncheck "keep existing image" when new file is selected
+            const keepExisting = document.getElementById('keepExistingImage');
+            if (keepExisting) {
+                keepExisting.checked = false;
+            }
+        }
+    });
+    
+    // Remove new image button
+    document.getElementById('removeImage').addEventListener('click', function() {
+        document.getElementById('imageFile').value = '';
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('previewImg').src = '';
+        
+        // Re-check "keep existing image"
+        const keepExisting = document.getElementById('keepExistingImage');
+        if (keepExisting) {
+            keepExisting.checked = true;
+        }
+    });
+</script>
+</body>
+</html>

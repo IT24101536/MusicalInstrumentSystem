@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add New Product - MusicStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">🎵 MusicStore</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" th:href="@{/seller/dashboard}">Dashboard</a>
+            <a class="nav-link" th:href="@{/seller/products}">My Products</a>
+            <a class="nav-link" th:href="@{/seller/profile}">My Profile</a>
+            <a class="nav-link" th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus"></i> Add New Product
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Error Message -->
+                    <div th:if="${param.error}" class="alert alert-danger">
+                        <th:block th:if="${param.error[0] == 'product_exists'}">
+                            ❌ A product with this name already exists in your inventory!
+                        </th:block>
+                        <th:block th:if="${param.error[0] == 'upload_failed'}">
+                            ❌ Failed to upload image! Please ensure the file is an image (JPG, PNG, WebP) and under 5MB.
+                        </th:block>
+                    </div>
+
+                    <form th:action="@{/seller/products/create}" method="post" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Basic Information -->
+                                <h5 class="border-bottom pb-2 mb-3">Basic Information</h5>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Product Name *</label>
+                                    <input type="text" class="form-control" name="name" required
+                                           placeholder="e.g., Fender Stratocaster Electric Guitar">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Category *</label>
+                                    <select class="form-control" name="category" required>
+                                        <option value="">Select a category...</option>
+                                        <option th:each="category : ${categories}"
+                                                th:value="${category}"
+                                                th:text="${category}">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Brand *</label>
+                                    <input type="text" class="form-control" name="brand" required
+                                           placeholder="e.g., Fender, Yamaha, Roland">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Price ($) *</label>
+                                    <input type="number" class="form-control" name="price"
+                                           step="0.01" min="0" required
+                                           placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <!-- Inventory & Media -->
+                                <h5 class="border-bottom pb-2 mb-3">Inventory & Media</h5>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Stock Quantity *</label>
+                                    <input type="number" class="form-control" name="stockQuantity"
+                                           min="0" required value="0">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Minimum Stock Level</label>
+                                    <input type="number" class="form-control" name="minStockLevel"
+                                           min="1" value="10">
+                                    <div class="form-text">You'll get alerts when stock drops below this level</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Product Image</label>
+                                    <input type="file" class="form-control" name="imageFile" id="imageFile"
+                                           accept="image/jpeg,image/png,image/webp,image/jpg">
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i> Upload from your computer (JPG, PNG, WebP - Max 5MB)
+                                    </div>
+                                    
+                                    <!-- Image Preview -->
+                                    <div id="imagePreview" class="mt-3" style="display: none;">
+                                        <label class="form-label">Preview:</label>
+                                        <div class="position-relative" style="max-width: 300px;">
+                                            <img id="previewImg" src="" alt="Preview" class="img-fluid rounded border"
+                                                 style="max-height: 300px; object-fit: cover;">
+                                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                                                    id="removeImage" title="Remove image">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Product Description</label>
+                                    <textarea class="form-control" name="description" rows="4"
+                                              placeholder="Describe your product... features, condition, specifications, etc."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a th:href="@{/seller/products}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Back to Products
+                                    </a>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save"></i> Create Product
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="card mt-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-lightbulb"></i> Tips for Adding Products</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>📝 Clear Names</h6>
+                            <p class="small text-muted">Use descriptive names that include brand, model, and key features.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>💰 Competitive Pricing</h6>
+                            <p class="small text-muted">Research similar products to set competitive prices.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>📦 Stock Management</h6>
+                            <p class="small text-muted">Set minimum stock levels to receive alerts before running out.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Image preview functionality
+    document.getElementById('imageFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('❌ Please select an image file!');
+                e.target.value = '';
+                return;
+            }
+            
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('❌ File size must not exceed 5MB!');
+                e.target.value = '';
+                return;
+            }
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('previewImg').src = event.target.result;
+                document.getElementById('imagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Remove image button
+    document.getElementById('removeImage').addEventListener('click', function() {
+        document.getElementById('imageFile').value = '';
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('previewImg').src = '';
+    });
+</script>
+</body>
+</html>

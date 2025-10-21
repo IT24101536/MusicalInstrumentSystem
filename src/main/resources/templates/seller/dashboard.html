@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Seller Dashboard - MusicStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .stat-card {
+            transition: transform 0.2s ease-in-out;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .quick-action-btn {
+            transition: all 0.3s ease;
+        }
+        .quick-action-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-warning">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">🎵 MusicStore</a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-dark fw-bold">Welcome, <span th:text="${user.name}">Seller</span></span>
+            <a class="nav-link text-dark" th:href="@{/seller/dashboard}">Dashboard</a>
+            <a class="nav-link text-dark" th:href="@{/seller/products}">My Products</a>
+            <a class="nav-link text-dark" th:href="@{/seller/profile}">My Profile</a>
+            <a class="nav-link text-dark" th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2>🏪 Seller Dashboard</h2>
+                            <p class="mb-0">Manage your musical instrument business efficiently</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="bg-dark text-warning rounded p-2 d-inline-block">
+                                <small>Seller ID: <strong th:text="${user.id}"></strong></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+        <span th:text="${error}">Error loading dashboard</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Total Products</h5>
+                            <h2 th:text="${productCount}">0</h2>
+                            <small>In your inventory</small>
+                        </div>
+                        <i class="fas fa-boxes fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Low Stock</h5>
+                            <h2 th:text="${lowStockCount}">0</h2>
+                            <small>Need restocking</small>
+                        </div>
+                        <i class="fas fa-exclamation-triangle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card text-white bg-danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Out of Stock</h5>
+                            <h2 th:text="${outOfStockCount}">0</h2>
+                            <small>Urgent attention</small>
+                        </div>
+                        <i class="fas fa-times-circle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>Inventory Value</h5>
+                            <h2 th:text="'$' + ${#numbers.formatDecimal(totalStockValue, 1, 2)}">$0</h2>
+                            <small>Total stock worth</small>
+                        </div>
+                        <i class="fas fa-dollar-sign fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a th:href="@{/seller/products/new}" class="btn btn-success quick-action-btn w-100 h-100 py-3">
+                                <i class="fas fa-plus fa-2x mb-2"></i><br>
+                                Add New Product
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a th:href="@{/seller/products}" class="btn btn-primary quick-action-btn w-100 h-100 py-3">
+                                <i class="fas fa-boxes fa-2x mb-2"></i><br>
+                                Manage Products
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a th:href="@{/seller/profile}" class="btn btn-info quick-action-btn w-100 h-100 py-3">
+                                <i class="fas fa-user-edit fa-2x mb-2"></i><br>
+                                Edit Profile
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <button class="btn btn-warning quick-action-btn w-100 h-100 py-3">
+                                <i class="fas fa-chart-line fa-2x mb-2"></i><br>
+                                Sales Reports
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <!-- Recent Activity -->
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">📦 Product Management</h6>
+                                <small class="text-muted">Just now</small>
+                            </div>
+                            <p class="mb-1">You have <strong th:text="${productCount}">0</strong> products in your inventory</p>
+                            <small class="text-muted" th:if="${productCount == 0}">Get started by adding your first product!</small>
+                        </div>
+
+                        <div th:if="${lowStockCount > 0}" class="list-group-item list-group-item-warning">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">⚠️ Stock Alert</h6>
+                                <small class="text-muted">Attention needed</small>
+                            </div>
+                            <p class="mb-1">You have <strong th:text="${lowStockCount}">0</strong> products with low stock levels</p>
+                            <small class="text-muted">Consider restocking these items soon.</small>
+                        </div>
+
+                        <div th:if="${outOfStockCount > 0}" class="list-group-item list-group-item-danger">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">🚨 Critical Alert</h6>
+                                <small class="text-muted">Urgent action required</small>
+                            </div>
+                            <p class="mb-1">You have <strong th:text="${outOfStockCount}">0</strong> products that are out of stock</p>
+                            <small class="text-muted">Restock immediately to avoid lost sales.</small>
+                        </div>
+
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">💰 Inventory Value</h6>
+                                <small class="text-muted">Current worth</small>
+                            </div>
+                            <p class="mb-1">Your total inventory is valued at <strong th:text="'$' + ${#numbers.formatDecimal(totalStockValue, 1, 2)}">$0</strong></p>
+                            <small class="text-muted">Based on current stock levels and prices.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seller Information & Quick Stats -->
+        <div class="col-md-4 mb-4">
+            <!-- Seller Info Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-store"></i> Your Business</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div class="bg-warning rounded-circle d-inline-flex align-items-center justify-content-center"
+                             style="width: 80px; height: 80px;">
+                            <i class="fas fa-store fa-2x text-dark"></i>
+                        </div>
+                    </div>
+                    <p class="mb-1"><strong>Business Name:</strong> <span th:text="${user.name}">Seller</span></p>
+                    <p class="mb-1"><strong>Email:</strong> <span th:text="${user.email}">email</span></p>
+                    <p class="mb-1"><strong>Role:</strong> <span class="badge bg-warning" th:text="${user.role}">SELLER</span></p>
+                    <p class="mb-1"><strong>Contact:</strong> <span th:text="${user.phone ?: 'Not set'}">Not set</span></p>
+                    <p class="mb-0"><strong>Joined:</strong> Active seller</p>
+                </div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-pie"></i> Performance Metrics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">Inventory Health</small>
+                        <div class="progress mb-2">
+                            <div th:class="${productCount == 0} ? 'progress-bar bg-danger' : (${lowStockCount == 0 && outOfStockCount == 0} ? 'progress-bar bg-success' : 'progress-bar bg-warning')"
+                                 th:style="${productCount == 0} ? 'width: 0%' : (${(productCount - lowStockCount - outOfStockCount) / productCount * 100} + '%')"
+                                 role="progressbar">
+                            </div>
+                        </div>
+                        <small th:if="${productCount == 0}" class="text-danger">No products added</small>
+                        <small th:if="${productCount > 0 && lowStockCount == 0 && outOfStockCount == 0}" class="text-success">Excellent inventory health</small>
+                        <small th:if="${productCount > 0 && (lowStockCount > 0 || outOfStockCount > 0)}" class="text-warning">Needs attention</small>
+                    </div>
+
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <h6 class="mb-0 text-success" th:text="${productCount == 0 ? '0' : ((productCount - lowStockCount - outOfStockCount) / productCount * 100) + '%'}">100%</h6>
+                                <small class="text-muted">Healthy Stock</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <h6 class="mb-0 text-warning" th:text="${productCount == 0 ? '0' : (lowStockCount / productCount * 100) + '%'}">0%</h6>
+                                <small class="text-muted">Low Stock</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action for New Sellers -->
+    <div th:if="${productCount == 0}" class="row mt-4">
+        <div class="col-12">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-rocket fa-3x text-success mb-3"></i>
+                    <h4>Ready to Start Selling?</h4>
+                    <p class="text-muted">Add your first musical instrument to begin your selling journey!</p>
+                    <a th:href="@{/seller/products/new}" class="btn btn-success btn-lg">
+                        <i class="fas fa-plus"></i> Add Your First Product
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Add some interactive effects
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click animations to quick action buttons
+        const quickActionBtns = document.querySelectorAll('.quick-action-btn');
+        quickActionBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                if (alert.classList.contains('show')) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 5000);
+        });
+    });
+</script>
+</body>
+</html>

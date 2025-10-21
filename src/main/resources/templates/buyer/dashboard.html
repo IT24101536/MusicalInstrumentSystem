@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Buyer Dashboard - MusicStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: var(--primary-gradient) !important;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .welcome-card {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+            animation: fadeInDown 0.6s ease-out;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+            animation: scaleIn 0.5s ease-out;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        
+        .stat-card:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+        
+        .stat-card-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .stat-card-info {
+            background: var(--info-gradient);
+        }
+        
+        .stat-card-warning {
+            background: var(--warning-gradient);
+        }
+        
+        .stat-card-secondary {
+            background: linear-gradient(135deg, #868f96 0%, #596164 100%);
+        }
+        
+        .product-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            background: white;
+            height: 100%;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .product-image {
+            height: 350px;
+            object-fit: cover;
+            width: 100%;
+            transition: transform 0.5s ease;
+        }
+        
+        .product-card:hover .product-image {
+            transform: scale(1.1);
+        }
+        
+        .product-image-container {
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .product-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .product-card:hover .product-overlay {
+            opacity: 1;
+        }
+        
+        .quick-action-btn {
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .quick-action-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .quick-action-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .quick-action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .category-btn {
+            transition: all 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        .category-btn:hover {
+            transform: translateX(10px);
+            background: var(--primary-gradient) !important;
+            color: white !important;
+            border-color: transparent !important;
+        }
+        
+        .badge-glow {
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255,193,7,0.5); }
+            50% { box-shadow: 0 0 20px rgba(255,193,7,0.8), 0 0 30px rgba(255,193,7,0.6); }
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .card-header {
+            border-radius: 15px 15px 0 0 !important;
+            border: none;
+        }
+        
+        .btn-gradient {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .price-tag {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .section-title {
+            position: relative;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">
+            <i class="fas fa-music"></i> MusicStore
+        </a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-white me-3">
+                <i class="fas fa-user-circle"></i> Welcome, <span th:text="${user.name}">Buyer</span>
+            </span>
+            <a class="nav-link text-white active" th:href="@{/buyer/dashboard}">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a class="nav-link text-white" th:href="@{/buyer/products}">
+                <i class="fas fa-store"></i> Browse
+            </a>
+            <a class="nav-link text-white position-relative" th:href="@{/buyer/cart}">
+                <i class="fas fa-shopping-cart"></i> Cart
+                <span id="cartBadge" class="badge bg-danger badge-glow position-absolute top-0 start-100 translate-middle" style="display: none;"></span>
+            </a>
+            <a class="nav-link text-white" th:href="@{/buyer/orders}">
+                <i class="fas fa-shopping-bag"></i> Orders
+            </a>
+            <a class="nav-link text-white" th:href="@{/buyer/profile}">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a class="nav-link text-white" th:href="@{/logout}">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card welcome-card text-white">
+                <div class="card-body p-5">
+                    <h1 class="display-4 mb-3">
+                        <i class="fas fa-music floating"></i> Welcome to Your Music Paradise!
+                    </h1>
+                    <p class="lead mb-0">
+                        Hello, <strong th:text="${user.name}">Buyer</strong>! Discover amazing musical instruments and unleash your creativity.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card stat-card-success text-white">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-guitar fa-3x mb-3 floating"></i>
+                    <h5 class="mb-2">Available Products</h5>
+                    <h2 class="display-4 fw-bold" th:text="${totalProducts}">0</h2>
+                    <small class="opacity-75">Ready to purchase</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card stat-card-info text-white">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-th-large fa-3x mb-3 floating" style="animation-delay: 0.2s;"></i>
+                    <h5 class="mb-2">Categories</h5>
+                    <h2 class="display-4 fw-bold" th:text="${categories != null ? categories.size() : 0}">9</h2>
+                    <small class="opacity-75">To explore</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card stat-card-warning text-white">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-shopping-cart fa-3x mb-3 floating" style="animation-delay: 0.4s;"></i>
+                    <h5 class="mb-2">Cart Items</h5>
+                    <h2 class="display-4 fw-bold" id="cartItemsCount">0</h2>
+                    <small class="opacity-75">Ready to checkout</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card stat-card-secondary text-white">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-shopping-bag fa-3x mb-3 floating" style="animation-delay: 0.6s;"></i>
+                    <h5 class="mb-2">Your Orders</h5>
+                    <h2 class="display-4 fw-bold" id="orderCount">0</h2>
+                    <small class="opacity-75">Total purchases</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header" style="background: var(--primary-gradient);">
+                    <h5 class="mb-0 text-white"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <a th:href="@{/buyer/cart}" class="btn btn-outline-success quick-action-btn w-100 h-100 py-4">
+                                <i class="fas fa-shopping-cart fa-3x mb-3"></i><br>
+                                <h5 class="mb-1">Shopping Cart</h5>
+                                <p class="small text-muted mb-0">Review your items</p>
+                                <span id="cartQuickBadge" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display: none;"></span>
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a th:href="@{/buyer/orders}" class="btn btn-outline-warning quick-action-btn w-100 h-100 py-4">
+                                <i class="fas fa-shopping-bag fa-3x mb-3"></i><br>
+                                <h5 class="mb-1">My Orders</h5>
+                                <p class="small text-muted mb-0">Track your purchases</p>
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a th:href="@{/buyer/profile}" class="btn btn-outline-info quick-action-btn w-100 h-100 py-4">
+                                <i class="fas fa-user-edit fa-3x mb-3"></i><br>
+                                <h5 class="mb-1">My Profile</h5>
+                                <p class="small text-muted mb-0">Update your info</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Products -->
+    <div class="row">
+        <div class="col-12">
+            <h2 class="section-title">
+                <i class="fas fa-gem"></i> Featured Products
+            </h2>
+            <div class="card">
+                <div class="card-header" style="background: var(--primary-gradient);">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-fire"></i> Hot Deals
+                        <span class="badge bg-light text-dark ms-2" th:text="${availableProducts != null ? availableProducts.size() : 0} + ' available'">0 available</span>
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div th:if="${availableProducts != null and availableProducts.size() > 0}" class="row">
+                        <div th:each="product, iterStat : ${availableProducts}" class="col-md-4 mb-4" th:style="'animation-delay: ' + ${iterStat.index * 0.1} + 's;'">
+                            <div class="card product-card h-100">
+                                <div class="product-image-container position-relative">
+                                    <img th:if="${product.imageUrl}"
+                                         th:src="${product.imageUrl}"
+                                         class="product-image"
+                                         alt="Product Image">
+                                    <div th:unless="${product.imageUrl}"
+                                         class="product-image bg-gradient d-flex align-items-center justify-content-center"
+                                         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                        <i class="fas fa-music fa-4x text-white"></i>
+                                    </div>
+                                    <div class="product-overlay"></div>
+                                    <span class="badge position-absolute top-0 start-0 m-3"
+                                          style="background: var(--primary-gradient); font-size: 0.9rem; padding: 8px 12px;"
+                                          th:text="${product.category}"></span>
+                                    <span th:if="${product.stockQuantity < 5}" 
+                                          class="badge bg-warning position-absolute top-0 end-0 m-3 badge-glow"
+                                          style="font-size: 0.9rem; padding: 8px 12px;">
+                                        <i class="fas fa-exclamation-triangle"></i> Low Stock
+                                    </span>
+                                </div>
+                                <div class="card-body p-4">
+                                    <h5 class="card-title fw-bold mb-3" th:text="${product.name}">Product Name</h5>
+                                    <p class="card-text text-muted small mb-3"
+                                       th:text="${product.description != null ? (#strings.length(product.description) > 80 ? #strings.substring(product.description, 0, 80) + '...' : product.description) : 'No description available'}">
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="price-tag"
+                                              th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0.00</span>
+                                        <span class="badge bg-light text-dark border"
+                                              th:text="${product.brand}">Brand</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <small class="text-muted">
+                                            <i class="fas fa-user"></i> <span th:text="${product.seller.name}">Seller</span>
+                                        </small>
+                                        <small th:class="${product.stockQuantity > 10} ? 'text-success fw-bold' : 'text-warning fw-bold'"
+                                               th:text="${product.stockQuantity} + ' left'">
+                                        </small>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <a th:href="@{/buyer/products/{id}(id=${product.id})}"
+                                           class="btn btn-outline-primary">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                        <button th:if="${product.stockQuantity > 0}"
+                                                class="btn btn-gradient add-to-cart-btn"
+                                                th:data-product-id="${product.id}"
+                                                th:data-product-name="${product.name}">
+                                            <i class="fas fa-cart-plus"></i> Add to Cart
+                                        </button>
+                                        <button th:if="${product.stockQuantity == 0}"
+                                                class="btn btn-secondary" disabled>
+                                            <i class="fas fa-times"></i> Out of Stock
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- No Products Message -->
+                    <div th:if="${availableProducts == null or availableProducts.size() == 0}" class="text-center py-5">
+                        <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                        <h4>No Products Available Yet</h4>
+                        <p class="text-muted">Products will appear here once sellers add them to the system.</p>
+                        <p class="text-muted">Check back later or contact system administrators.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">🎸 Browse by Category</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div th:each="category : ${categories}" class="col-md-4 mb-2">
+                            <a th:href="@{/buyer/products(category=${category})}"
+                               class="btn btn-outline-secondary w-100 text-start">
+                                <i class="fas fa-arrow-right me-2"></i>
+                                <span th:text="${category}"></span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Update cart count dynamically
+    function updateCartCount() {
+        fetch('/buyer/cart/count')
+            .then(response => response.json())
+            .then(count => {
+                document.getElementById('cartItemsCount').textContent = count;
+                const cartBadge = document.getElementById('cartBadge');
+                const cartQuickBadge = document.getElementById('cartQuickBadge');
+
+                if (count > 0) {
+                    if (cartBadge) {
+                        cartBadge.textContent = count;
+                        cartBadge.style.display = 'inline';
+                    }
+                    if (cartQuickBadge) {
+                        cartQuickBadge.textContent = count;
+                        cartQuickBadge.style.display = 'inline';
+                    }
+                } else {
+                    if (cartBadge) cartBadge.style.display = 'none';
+                    if (cartQuickBadge) cartQuickBadge.style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Error fetching cart count:', error));
+    }
+
+    // Add to cart functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Update cart count on page load
+        updateCartCount();
+
+        // Add to cart buttons - Fixed to properly redirect
+        const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                const productName = this.getAttribute('data-product-name');
+
+                console.log('Adding to cart - Product ID:', productId);
+
+                // Show loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+                this.disabled = true;
+
+                // Create a form and submit it to properly handle redirect
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/buyer/cart/add';
+
+                // Add product ID
+                const productInput = document.createElement('input');
+                productInput.type = 'hidden';
+                productInput.name = 'productId';
+                productInput.value = productId;
+                form.appendChild(productInput);
+
+                // Add quantity
+                const quantityInput = document.createElement('input');
+                quantityInput.type = 'hidden';
+                quantityInput.name = 'quantity';
+                quantityInput.value = '1';
+                form.appendChild(quantityInput);
+
+                // Submit form (will redirect to cart page)
+                document.body.appendChild(form);
+                form.submit();
+            });
+        });
+
+        // Add interactive effects to product cards
+        const productCards = document.querySelectorAll('.product-card');
+        productCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Add click animations to quick action buttons
+        const quickActionBtns = document.querySelectorAll('.quick-action-btn');
+        quickActionBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+    });
+
+    // Toast notification function
+    function showToast(title, message, type) {
+        // Create toast container if it doesn't exist
+        let toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toast-container';
+            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+            toastContainer.style.zIndex = '1050';
+            document.body.appendChild(toastContainer);
+        }
+
+        // Create toast
+        const toastId = 'toast-' + Date.now();
+        const toast = document.createElement('div');
+        toast.id = toastId;
+        toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <strong>${title}</strong><br>${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+
+        toastContainer.appendChild(toast);
+
+        // Show toast
+        const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+        bsToast.show();
+
+        // Remove toast after hide
+        toast.addEventListener('hidden.bs.toast', function () {
+            toast.remove();
+        });
+    }
+</script>
+</body>
+</html>

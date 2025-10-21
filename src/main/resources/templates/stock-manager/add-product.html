@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add New Product - MusicStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-info">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">🎵 MusicStore</a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-white">Stock Manager: <span th:text="${user.name}">Manager</span></span>
+            <a class="nav-link text-white" th:href="@{/stock-manager/dashboard}">Dashboard</a>
+            <a class="nav-link text-white" th:href="@{/stock-manager/products}">All Products</a>
+            <a class="nav-link text-white" th:href="@{/stock-manager/alerts}">Alerts</a>
+            <a class="nav-link text-white" th:href="@{/stock-manager/reports}">Reports</a>
+            <a class="nav-link text-white" th:href="@{/stock-manager/profile}">Profile</a>
+            <a class="nav-link text-white" th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle"></i> Add New Product
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Success/Error Messages -->
+                    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+                        <th:block th:if="${param.success[0] == 'product_created'}">
+                            ✅ Product created successfully!
+                        </th:block>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show">
+                        <th:block th:if="${param.error[0] == 'product_exists'}">
+                            ❌ Product name already exists for this seller!
+                        </th:block>
+                        <th:block th:if="${param.error[0] == 'invalid_price'}">
+                            ❌ Price must be greater than 0!
+                        </th:block>
+                        <th:block th:if="${param.error[0] == 'invalid_stock'}">
+                            ❌ Stock quantity cannot be negative!
+                        </th:block>
+                        <th:block th:if="${param.error[0] == 'invalid_min_stock'}">
+                            ❌ Minimum stock level must be at least 1!
+                        </th:block>
+                        <th:block th:if="${param.error[0] == 'invalid_seller'}">
+                            ❌ Please select a valid seller!
+                        </th:block>
+                        <th:block th:if="${param.error[0] == 'create_failed'}">
+                            ❌ Failed to create product!
+                        </th:block>
+                        <th:block th:if="${param.error[0] == 'server_error'}">
+                            ❌ Server error occurred!
+                        </th:block>
+                        <th:block th:if="${param.error[0] == 'upload_failed'}">
+                            ❌ Failed to upload image! Please ensure the file is an image (JPG, PNG, WebP) and under 5MB.
+                        </th:block>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <form th:action="@{/stock-manager/products/create}" method="post" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Product Name *</label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                           required maxlength="100" placeholder="Enter product name">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="brand" class="form-label">Brand *</label>
+                                    <input type="text" class="form-control" id="brand" name="brand"
+                                           required maxlength="50" placeholder="Enter brand name">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description"
+                                      rows="3" maxlength="500" placeholder="Enter product description"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="category" class="form-label">Category *</label>
+                                    <select class="form-select" id="category" name="category" required>
+                                        <option value="">Select Category</option>
+                                        <option th:each="category : ${categories}"
+                                                th:value="${category}"
+                                                th:text="${category}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="price" class="form-label">Price ($) *</label>
+                                    <input type="number" class="form-control" id="price" name="price"
+                                           step="0.01" min="0.01" required placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="sellerId" class="form-label">Seller *</label>
+                                    <select class="form-select" id="sellerId" name="sellerId" required>
+                                        <option value="">Select Seller</option>
+                                        <option th:each="seller : ${sellers}"
+                                                th:value="${seller.id}"
+                                                th:text="${seller.name + ' (' + seller.email + ')'}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="stockQuantity" class="form-label">Stock Quantity *</label>
+                                    <input type="number" class="form-control" id="stockQuantity" name="stockQuantity"
+                                           min="0" required value="0" placeholder="0">
+                                    <div class="form-text">Initial quantity in stock</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="minStockLevel" class="form-label">Minimum Stock Level *</label>
+                                    <input type="number" class="form-control" id="minStockLevel" name="minStockLevel"
+                                           min="1" required value="10" placeholder="10">
+                                    <div class="form-text">Alert when stock falls below this level</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="imageFile" class="form-label">Product Image</label>
+                            <input type="file" class="form-control" id="imageFile" name="imageFile"
+                                   accept="image/jpeg,image/png,image/webp,image/jpg">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i> Upload from your computer (JPG, PNG, WebP - Max 5MB)
+                            </div>
+                            
+                            <!-- Image Preview -->
+                            <div id="imagePreview" class="mt-3" style="display: none;">
+                                <label class="form-label">Preview:</label>
+                                <div class="position-relative" style="max-width: 300px;">
+                                    <img id="previewImg" src="" alt="Preview" class="img-fluid rounded border"
+                                         style="max-height: 300px; object-fit: cover;">
+                                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                                            id="removeImage" title="Remove image">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a th:href="@{/stock-manager/products}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-plus-circle"></i> Create Product
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Image preview functionality
+    document.getElementById('imageFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('❌ Please select an image file!');
+                e.target.value = '';
+                return;
+            }
+            
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('❌ File size must not exceed 5MB!');
+                e.target.value = '';
+                return;
+            }
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('previewImg').src = event.target.result;
+                document.getElementById('imagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Remove image button
+    document.getElementById('removeImage').addEventListener('click', function() {
+        document.getElementById('imageFile').value = '';
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('previewImg').src = '';
+    });
+
+    // Form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+
+        form.addEventListener('submit', function(event) {
+            const price = parseFloat(document.getElementById('price').value);
+            const stockQuantity = parseInt(document.getElementById('stockQuantity').value);
+            const minStockLevel = parseInt(document.getElementById('minStockLevel').value);
+            const sellerId = document.getElementById('sellerId').value;
+
+            if (price <= 0) {
+                alert('Price must be greater than 0!');
+                event.preventDefault();
+                return;
+            }
+
+            if (stockQuantity < 0) {
+                alert('Stock quantity cannot be negative!');
+                event.preventDefault();
+                return;
+            }
+
+            if (minStockLevel < 1) {
+                alert('Minimum stock level must be at least 1!');
+                event.preventDefault();
+                return;
+            }
+
+            if (!sellerId) {
+                alert('Please select a seller!');
+                event.preventDefault();
+                return;
+            }
+
+            const confirmed = confirm('Are you sure you want to create this product?');
+            if (!confirmed) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Shopping Cart - MusicStore</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding-bottom: 50px;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .page-header {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      animation: slideDown 0.5s ease;
+    }
+
+    .page-header h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .cart-items-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      border: none;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .cart-item {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+      border: 2px solid #e8ecff;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+      padding: 1.5rem;
+    }
+
+    .cart-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(102, 126, 234, 0.25);
+      border-color: #667eea;
+    }
+
+    .product-image {
+      border-radius: 12px;
+      height: 120px;
+      width: 120px;
+      object-fit: cover;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .product-image:hover {
+      transform: scale(1.05);
+    }
+
+    .product-placeholder {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      height: 120px;
+      width: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .product-placeholder i {
+      font-size: 3rem;
+      color: white;
+    }
+
+    .product-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .product-meta {
+      color: #718096;
+      font-size: 0.9rem;
+    }
+
+    .product-price {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    .quantity-control {
+      background: white;
+      border: 2px solid #e8ecff;
+      border-radius: 8px;
+      transition: border-color 0.3s ease;
+    }
+
+    .quantity-control:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn-update {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    .btn-update:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-remove {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border: none;
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    .btn-remove:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+    }
+
+    .summary-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      border: none;
+      position: sticky;
+      top: 20px;
+      animation: slideLeft 0.6s ease;
+    }
+
+    .summary-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.2rem;
+      border-radius: 15px 15px 0 0;
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+
+    .summary-row {
+      padding: 0.8rem 0;
+      border-bottom: 1px dashed #e8ecff;
+      font-size: 1rem;
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .summary-total {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      color: white;
+    }
+
+    .summary-total strong {
+      font-size: 1.5rem;
+    }
+
+    .btn-checkout {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      border: none;
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(56, 239, 125, 0.3);
+    }
+
+    .btn-checkout:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(56, 239, 125, 0.5);
+    }
+
+    .btn-continue {
+      background: white;
+      border: 2px solid #667eea;
+      color: #667eea;
+      padding: 0.8rem;
+      font-weight: 600;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-continue:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-clear-cart {
+      background: white;
+      border: 2px solid #f5576c;
+      color: #f5576c;
+      padding: 0.8rem;
+      font-weight: 600;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-clear-cart:hover {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      border-color: #f5576c;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+    }
+
+    .address-input {
+      border: 2px solid #e8ecff;
+      border-radius: 10px;
+      padding: 0.8rem;
+      transition: all 0.3s ease;
+    }
+
+    .address-input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .empty-cart-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      border: none;
+      padding: 4rem 2rem;
+      text-align: center;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .empty-cart-icon {
+      font-size: 6rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .alert {
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      animation: slideDown 0.5s ease;
+    }
+
+    .badge {
+      padding: 0.4rem 0.6rem;
+      border-radius: 8px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideLeft {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    .shipping-badge {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      display: inline-block;
+      animation: pulse 3s infinite;
+    }
+
+    .stock-indicator {
+      font-size: 0.85rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .card-header {
+      border-bottom: 3px solid #667eea;
+      background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" th:href="@{/}">🎵 MusicStore</a>
+    <div class="navbar-nav ms-auto">
+      <span class="navbar-text text-white">Welcome, <span th:text="${user.name}">Buyer</span></span>
+      <a class="nav-link text-white" th:href="@{/buyer/dashboard}">Dashboard</a>
+      <a class="nav-link text-white" th:href="@{/buyer/products}">Browse</a>
+      <a class="nav-link text-white active" th:href="@{/buyer/cart}">
+        <i class="fas fa-shopping-cart"></i> Cart
+        <span th:if="${cart.cartItems != null and cart.cartItems.size() > 0}" class="badge bg-danger" th:text="${cart.cartItems.size()}"></span>
+      </a>
+      <a class="nav-link text-white" th:href="@{/buyer/orders}">Orders</a>
+      <a class="nav-link text-white" th:href="@{/buyer/profile}">Profile</a>
+      <a class="nav-link text-white" th:href="@{/logout}">Logout</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="page-header text-white">
+        <h2><i class="fas fa-shopping-cart me-3"></i>Shopping Cart</h2>
+        <p class="mb-0" style="font-size: 1.1rem;">Review your selected musical instruments before checkout</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+    <th:block th:if="${param.success == 'added_to_cart'}">
+      ✅ Product added to cart successfully!
+    </th:block>
+    <th:block th:if="${param.success == 'cart_updated'}">
+      ✅ Cart updated successfully!
+    </th:block>
+    <th:block th:if="${param.success == 'item_removed'}">
+      ✅ Item removed from cart!
+    </th:block>
+    <th:block th:if="${param.success == 'cart_cleared'}">
+      ✅ Cart cleared successfully!
+    </th:block>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show">
+    <th:block th:if="${param.error == 'empty_cart'}">
+      ❌ Your cart is empty! Please add some products first.
+    </th:block>
+    <th:block th:if="${param.error == 'checkout_validation_failed'}">
+      ❌ Some items in your cart are out of stock. Please update your cart.
+    </th:block>
+    <th:block th:if="${param.error == 'order_creation_failed'}">
+      ❌ Failed to create order. Please try again.
+    </th:block>
+    <th:block th:if="${param.error == 'order_failed'}">
+      ❌ Order creation failed: <span th:text="${param.message}"></span>
+    </th:block>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <!-- Cart Content -->
+  <div th:if="${cart.cartItems != null and cart.cartItems.size() > 0}">
+    <div class="row">
+      <div class="col-lg-8">
+        <!-- Cart Items -->
+        <div class="cart-items-card">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Cart Items (<span th:text="${cart.cartItems.size()}">0</span>)</h5>
+          </div>
+          <div class="card-body p-4">
+            <div th:each="cartItem : ${cart.cartItems}" class="cart-item">
+              <div class="row align-items-center">
+                <div class="col-lg-2 col-md-3 mb-3 mb-md-0">
+                  <img th:if="${cartItem.product.imageUrl}"
+                       th:src="${cartItem.product.imageUrl}"
+                       class="product-image"
+                       alt="Product Image">
+                  <div th:unless="${cartItem.product.imageUrl}"
+                       class="product-placeholder">
+                    <i class="fas fa-music"></i>
+                  </div>
+                </div>
+                <div class="col-lg-4 col-md-5 mb-3 mb-md-0">
+                  <h6 class="product-title" th:text="${cartItem.product.name}"></h6>
+                  <div class="product-meta">
+                    <i class="fas fa-tag me-1"></i><span th:text="${cartItem.product.brand}"></span>
+                  </div>
+                  <div class="product-meta">
+                    <i class="fas fa-layer-group me-1"></i><span th:text="${cartItem.product.category}"></span>
+                  </div>
+                  <span th:if="${cartItem.product.stockQuantity > 10}" 
+                        class="stock-indicator bg-success text-white mt-2">
+                    <i class="fas fa-check-circle"></i> In Stock
+                  </span>
+                  <span th:if="${cartItem.product.stockQuantity <= 10 && cartItem.product.stockQuantity > 0}" 
+                        class="stock-indicator bg-warning text-dark mt-2">
+                    <i class="fas fa-exclamation-triangle"></i> Only <span th:text="${cartItem.product.stockQuantity}"></span> left
+                  </span>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6 mb-3 mb-lg-0 text-center">
+                  <div class="text-muted" style="font-size: 0.85rem;">Unit Price</div>
+                  <div class="product-price" th:text="'$' + ${#numbers.formatDecimal(cartItem.product.price, 1, 2)}"></div>
+                </div>
+                <div class="col-lg-2 col-md-6 col-6 mb-3 mb-lg-0">
+                  <form th:action="@{/buyer/cart/update}" method="post" class="d-flex align-items-center">
+                    <input type="hidden" name="productId" th:value="${cartItem.product.id}">
+                    <input type="number" name="quantity"
+                           th:value="${cartItem.quantity}"
+                           min="1" th:max="${cartItem.product.stockQuantity}" 
+                           class="form-control quantity-control me-2"
+                           style="width: 80px;">
+                    <button type="submit" class="btn btn-update">
+                      <i class="fas fa-sync"></i>
+                    </button>
+                  </form>
+                  <small class="text-muted mt-1 d-block">Max: <span th:text="${cartItem.product.stockQuantity}"></span></small>
+                </div>
+                <div class="col-lg-2 col-md-6 text-center">
+                  <div class="text-muted" style="font-size: 0.85rem;">Subtotal</div>
+                  <div class="product-price" th:text="'$' + ${#numbers.formatDecimal(cartItem.subtotal, 1, 2)}"></div>
+                  <a th:href="@{'/buyer/cart/remove/' + ${cartItem.product.id}}"
+                     class="btn btn-sm btn-remove mt-2"
+                     onclick="return confirm('Remove this item from cart?');">
+                    <i class="fas fa-trash me-1"></i> Remove
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <!-- Order Summary -->
+        <div class="summary-card">
+          <div class="summary-header">
+            <i class="fas fa-receipt me-2"></i>Order Summary
+          </div>
+          <div class="card-body p-4">
+            <div class="summary-row d-flex justify-content-between">
+              <span><i class="fas fa-box me-2 text-primary"></i>Items:</span>
+              <strong th:text="${cart.cartItems.size()}">0</strong>
+            </div>
+            <div class="summary-row d-flex justify-content-between">
+              <span><i class="fas fa-dollar-sign me-2 text-success"></i>Subtotal:</span>
+              <strong th:text="'$' + ${#numbers.formatDecimal(cart.totalAmount, 1, 2)}">$0.00</strong>
+            </div>
+            <div class="summary-row d-flex justify-content-between">
+              <span><i class="fas fa-truck me-2 text-info"></i>Shipping:</span>
+              <span class="shipping-badge"><i class="fas fa-gift me-1"></i>FREE</span>
+            </div>
+            
+            <div class="summary-total d-flex justify-content-between align-items-center">
+              <strong style="font-size: 1.2rem;">Total:</strong>
+              <strong style="font-size: 1.8rem;" th:text="'$' + ${#numbers.formatDecimal(cart.totalAmount, 1, 2)}">$0.00</strong>
+            </div>
+
+            <!-- Checkout Form -->
+            <form th:action="@{/buyer/orders/create}" method="post" id="checkoutForm">
+              <div class="mb-3">
+                <label class="form-label fw-bold">
+                  <i class="fas fa-map-marker-alt me-2 text-danger"></i>Shipping Address *
+                </label>
+                <textarea class="form-control address-input" name="shippingAddress"
+                          rows="4" required
+                          th:value="${user.address}"
+                          placeholder="Enter your complete shipping address including street, city, state, and ZIP code"></textarea>
+                <div class="form-text mt-2">
+                  <i class="fas fa-info-circle me-1"></i>Required for order delivery
+                </div>
+              </div>
+              <button type="submit" class="btn btn-checkout w-100 mb-3">
+                <i class="fas fa-lock me-2"></i>Secure Checkout
+              </button>
+            </form>
+
+            <a th:href="@{/buyer/products}" class="btn btn-continue w-100 mb-3">
+              <i class="fas fa-shopping-bag me-2"></i>Continue Shopping
+            </a>
+            <a th:href="@{/buyer/cart/clear}" class="btn btn-clear-cart w-100"
+               onclick="return confirm('Are you sure you want to clear your entire cart?');">
+              <i class="fas fa-trash-alt me-2"></i>Clear Cart
+            </a>
+
+            <div class="mt-4 p-3" style="background: #f8f9ff; border-radius: 10px; border-left: 4px solid #667eea;">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-shield-alt text-primary me-2" style="font-size: 1.5rem;"></i>
+                <div>
+                  <strong style="color: #2d3748;">Secure Payment</strong>
+                  <p class="mb-0 small text-muted">Your payment information is protected</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty Cart Message -->
+  <div th:if="${cart.cartItems == null or cart.cartItems.size() == 0}" class="empty-cart-card">
+    <i class="fas fa-shopping-cart empty-cart-icon mb-4"></i>
+    <h2 style="color: #2d3748; font-weight: 700; margin-bottom: 1rem;">Your Cart is Empty</h2>
+    <p class="text-muted" style="font-size: 1.1rem; margin-bottom: 2rem;">
+      Looks like you haven't added any musical instruments to your cart yet.<br>
+      Start exploring our amazing collection!
+    </p>
+    <a th:href="@{/buyer/products}" class="btn btn-checkout" style="padding: 1rem 3rem;">
+      <i class="fas fa-guitar me-2"></i> Browse Instruments
+    </a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Form validation
+  document.getElementById('checkoutForm')?.addEventListener('submit', function(e) {
+    const address = this.querySelector('textarea[name="shippingAddress"]').value.trim();
+    if (!address) {
+      e.preventDefault();
+      alert('Please enter your shipping address before checkout.');
+      return false;
+    }
+  });
+
+  // Quantity validation
+  document.querySelectorAll('input[type="number"]').forEach(input => {
+    input.addEventListener('change', function() {
+      const max = parseInt(this.getAttribute('max'));
+      const value = parseInt(this.value);
+      if (value > max) {
+        this.value = max;
+        alert('Cannot exceed available stock: ' + max);
+      }
+    });
+  });
+</script>
+</body>
+</html>

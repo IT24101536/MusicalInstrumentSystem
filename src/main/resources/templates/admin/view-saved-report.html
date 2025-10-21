@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${report.reportName} + ' - Saved Report'">Saved Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .metric-card {
+            transition: transform 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">🎵 MusicStore</a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-warning me-3">Administrator: <span th:text="${user.name}">Admin</span></span>
+            <a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+            <a class="nav-link" th:href="@{/admin/reports/saved}">Saved Reports</a>
+            <a class="nav-link" th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <!-- Success/Error Messages -->
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle"></i>
+        <span th:if="${param.success[0] == 'report_updated'}">Report updated successfully!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h2><i class="fas fa-file-invoice-dollar"></i> <span th:text="${report.reportName}">Report Name</span></h2>
+                    <p class="mb-0">Saved Report ID: <strong th:text="${report.id}">1</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <a th:href="@{/admin/reports/saved}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Saved Reports
+            </a>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal">
+                <i class="fas fa-edit"></i> Edit Report
+            </button>
+            <a th:href="@{'/admin/reports/delete/' + ${report.id}}"
+               class="btn btn-danger"
+               onclick="return confirm('Are you sure you want to delete this report?')">
+                <i class="fas fa-trash"></i> Delete Report
+            </a>
+            <button class="btn btn-info" onclick="window.print()">
+                <i class="fas fa-print"></i> Print
+            </button>
+        </div>
+    </div>
+
+    <!-- Report Details -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h6>Report Information</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Period:</strong>
+                        <span class="badge bg-secondary" th:text="${report.reportPeriod}">month</span>
+                    </p>
+                    <p><strong>Start Date:</strong>
+                        <span th:text="${#temporals.format(report.startDate, 'MMMM dd, yyyy')}">January 01, 2025</span>
+                    </p>
+                    <p><strong>End Date:</strong>
+                        <span th:text="${#temporals.format(report.endDate, 'MMMM dd, yyyy')}">January 31, 2025</span>
+                    </p>
+                    <p><strong>Created By:</strong>
+                        <span th:if="${report.createdBy != null}" th:text="${report.createdBy.name}">Admin</span>
+                    </p>
+                    <p><strong>Created At:</strong>
+                        <span th:text="${#temporals.format(report.createdAt, 'MMMM dd, yyyy HH:mm')}">Oct 19, 2025 12:00</span>
+                    </p>
+                    <p th:if="${report.notes}"><strong>Notes:</strong></p>
+                    <p th:if="${report.notes}" class="text-muted" th:text="${report.notes}">Report notes</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="card metric-card bg-success text-white">
+                        <div class="card-body">
+                            <h6><i class="fas fa-dollar-sign"></i> Total Revenue</h6>
+                            <div class="metric-value" th:text="'$' + ${#numbers.formatDecimal(report.totalRevenue, 1, 2)}">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card metric-card bg-info text-white">
+                        <div class="card-body">
+                            <h6><i class="fas fa-receipt"></i> Total Transactions</h6>
+                            <div class="metric-value" th:text="${report.totalTransactions}">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card metric-card bg-warning text-white">
+                        <div class="card-body">
+                            <h6><i class="fas fa-chart-bar"></i> Average Order Value</h6>
+                            <div class="metric-value" th:text="'$' + ${#numbers.formatDecimal(report.averageOrderValue, 1, 2)}">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card metric-card bg-secondary text-white">
+                        <div class="card-body">
+                            <h6><i class="fas fa-clock"></i> Pending Revenue</h6>
+                            <div class="metric-value" th:text="'$' + ${#numbers.formatDecimal(report.pendingRevenue, 1, 2)}">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Growth & Performance -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-chart-line"></i> Performance Metrics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>Growth Rate</h6>
+                            <h3 th:class="${report.growthRate >= 0} ? 'text-success' : 'text-danger'">
+                                <i th:class="${report.growthRate >= 0} ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                <span th:text="${#numbers.formatDecimal(report.growthRate, 1, 1)}">0.0</span>%
+                            </h3>
+                            <small class="text-muted">vs previous period</small>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Orders Processed</h6>
+                            <h3 class="text-primary" th:text="${report.ordersInRange}">0</h3>
+                            <small class="text-muted">in this period</small>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Revenue per Order</h6>
+                            <h3 class="text-info" th:text="'$' + ${#numbers.formatDecimal(report.averageOrderValue, 1, 2)}">$0.00</h3>
+                            <small class="text-muted">average value</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Comments Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-comments"></i> Report Comments & Annotations</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Success/Error Messages for Comments -->
+                    <div th:if="${param.success and param.success[0] == 'comment_added'}" class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> Comment added successfully!
+                    </div>
+                    <div th:if="${param.success and param.success[0] == 'comment_deleted'}" class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> Comment deleted successfully!
+                    </div>
+
+                    <!-- Add Comment Form -->
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title">Add New Comment</h6>
+                            <form th:action="@{'/admin/reports/' + ${report.id} + '/comments/add'}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label">Comment Type</label>
+                                    <select class="form-select" name="commentType" required>
+                                        <option value="NOTE">Note</option>
+                                        <option value="ANALYSIS">Analysis</option>
+                                        <option value="RECOMMENDATION">Recommendation</option>
+                                        <option value="ISSUE">Issue</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Comment</label>
+                                    <textarea class="form-control" name="commentText" rows="3" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-plus"></i> Add Comment
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Comments List (Loaded via JavaScript or Thymeleaf) -->
+                    <div id="commentsList">
+                        <p class="text-muted">
+                            <i class="fas fa-info-circle"></i> Comments will be displayed here after adding them.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{'/admin/reports/update/' + ${report.id}}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Report Name</label>
+                        <input type="text" class="form-control" name="reportName"
+                               th:value="${report.reportName}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" name="notes" rows="4"
+                                  th:text="${report.notes}"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

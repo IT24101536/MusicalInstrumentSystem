@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Saved Financial Reports - MusicStore Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">🎵 MusicStore</a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-warning me-3">Administrator: <span th:text="${user.name}">Admin</span></span>
+            <a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+            <a class="nav-link" th:href="@{/admin/reports}">New Report</a>
+            <a class="nav-link" th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <!-- Success/Error Messages -->
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle"></i>
+        <span th:if="${param.success[0] == 'report_saved'}">Report saved successfully!</span>
+        <span th:if="${param.success[0] == 'report_deleted'}">Report deleted successfully!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:if="${param.error[0] == 'report_not_found'}">Report not found!</span>
+        <span th:if="${param.error[0] == 'delete_failed'}">Failed to delete report!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h2><i class="fas fa-folder-open"></i> Saved Financial Reports</h2>
+                    <p class="mb-0">View, manage, and analyze previously saved financial reports</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h5>Total Saved Reports</h5>
+                    <h2 th:text="${totalSavedReports}">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body">
+                    <a th:href="@{/admin/reports}" class="btn btn-success btn-lg">
+                        <i class="fas fa-plus-circle"></i> Generate New Report
+                    </a>
+                    <a th:href="@{/admin/dashboard}" class="btn btn-outline-secondary btn-lg ms-2">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Saved Reports Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5><i class="fas fa-list"></i> All Saved Reports</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Report Name</th>
+                                <th>Period</th>
+                                <th>Date Range</th>
+                                <th>Revenue</th>
+                                <th>Transactions</th>
+                                <th>Created By</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="report : ${savedReports}">
+                                <td th:text="${report.id}">1</td>
+                                <td>
+                                    <strong th:text="${report.reportName}">Report Name</strong>
+                                    <br>
+                                    <small class="text-muted" th:if="${report.notes}"
+                                           th:text="${#strings.length(report.notes) > 50 ? #strings.substring(report.notes, 0, 50) + '...' : report.notes}">
+                                    </small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary" th:text="${report.reportPeriod}">month</span>
+                                </td>
+                                <td>
+                                    <small th:text="${#temporals.format(report.startDate, 'MMM dd, yyyy')}">Jan 01, 2025</small>
+                                    <br>to<br>
+                                    <small th:text="${#temporals.format(report.endDate, 'MMM dd, yyyy')}">Jan 31, 2025</small>
+                                </td>
+                                <td class="text-success fw-bold"
+                                    th:text="'$' + ${#numbers.formatDecimal(report.totalRevenue, 1, 2)}">$0.00</td>
+                                <td th:text="${report.totalTransactions}">0</td>
+                                <td>
+                                        <span th:if="${report.createdBy != null}"
+                                              th:text="${report.createdBy.name}">Admin</span>
+                                    <span th:unless="${report.createdBy != null}">Unknown</span>
+                                </td>
+                                <td>
+                                    <small th:text="${#temporals.format(report.createdAt, 'MMM dd, yyyy HH:mm')}">
+                                        Oct 19, 2025 12:00
+                                    </small>
+                                </td>
+                                <td>
+                                    <a th:href="@{'/admin/reports/view/' + ${report.id}}"
+                                       class="btn btn-sm btn-primary" title="View Report">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a th:href="@{'/admin/reports/delete/' + ${report.id}}"
+                                       class="btn btn-sm btn-danger"
+                                       title="Delete Report"
+                                       onclick="return confirm('Are you sure you want to delete this report?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr th:if="${savedReports == null or savedReports.size() == 0}">
+                                <td colspan="9" class="text-center text-muted">
+                                    <i class="fas fa-inbox"></i>
+                                    <p class="mt-2">No saved reports found. Generate a new report to get started!</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

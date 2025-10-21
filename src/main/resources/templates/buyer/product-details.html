@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${product.name} + ' - MusicStore'">Product Details - MusicStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --danger-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: var(--primary-gradient) !important;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .product-image-container {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        
+        .product-image-container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 20px;
+        }
+        
+        .price-tag {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .seller-info {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .seller-info:hover {
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 12px 0;
+            border-bottom: 2px solid #f0f0f0;
+            transition: all 0.2s ease;
+        }
+        
+        .feature-list li:hover {
+            padding-left: 10px;
+            border-color: #667eea;
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .quantity-control {
+            max-width: 150px;
+        }
+        
+        .stock-out {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .stock-low {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        
+        .stock-good {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .badge-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .badge {
+            font-size: 1rem;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+        }
+        
+        .btn-gradient {
+            background: var(--success-gradient);
+            border: none;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.3);
+        }
+        
+        .btn-gradient:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(17, 153, 142, 0.5);
+            color: white;
+        }
+        
+        .quantity-control .btn {
+            border-radius: 10px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        
+        .quantity-control .btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .availability-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .related-product-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .related-product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .related-product-image {
+            height: 200px;
+            object-fit: cover;
+            width: 100%;
+        }
+        
+        .section-title {
+            position: relative;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">
+            <i class="fas fa-music"></i> MusicStore
+        </a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-white me-3">
+                <i class="fas fa-user-circle"></i> <span th:text="${user.name}">Buyer</span>
+            </span>
+            <a class="nav-link text-white" th:href="@{/buyer/dashboard}">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a class="nav-link text-white" th:href="@{/buyer/products}">
+                <i class="fas fa-store"></i> Browse
+            </a>
+            <a class="nav-link text-white position-relative" th:href="@{/buyer/cart}">
+                <i class="fas fa-shopping-cart"></i> Cart
+                <span id="cartBadge" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display: none;"></span>
+            </a>
+            <a class="nav-link text-white" th:href="@{/buyer/orders}">
+                <i class="fas fa-shopping-bag"></i> Orders
+            </a>
+            <a class="nav-link text-white" th:href="@{/buyer/profile}">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a class="nav-link text-white" th:href="@{/logout}">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <!-- Success/Error Messages -->
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+        <span th:text="${param.success[0]}">Success message</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show">
+        <span th:text="${param.error[0]}">Error message</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row">
+        <!-- Product Images & Basic Info -->
+        <div class="col-md-6 mb-4">
+            <div class="product-image-container">
+                <img th:if="${product.imageUrl}"
+                     th:src="${product.imageUrl}"
+                     class="product-image"
+                     th:alt="${product.name}">
+                <div th:unless="${product.imageUrl}"
+                     class="product-image d-flex align-items-center justify-content-center"
+                     style="background: var(--primary-gradient);">
+                    <i class="fas fa-music fa-5x text-white"></i>
+                </div>
+            </div>
+            
+            <div class="badge-container mt-3">
+                <span class="badge bg-primary">
+                    <i class="fas fa-tag"></i> <span th:text="${product.category}"></span>
+                </span>
+                <span class="badge bg-info">
+                    <i class="fas fa-copyright"></i> <span th:text="${product.brand}"></span>
+                </span>
+                <span th:if="${product.stockQuantity == 0}"
+                      class="badge bg-danger">
+                    <i class="fas fa-times-circle"></i> Out of Stock
+                </span>
+                <span th:if="${product.stockQuantity <= 5 and product.stockQuantity > 0}"
+                      class="badge bg-warning">
+                    <i class="fas fa-exclamation-triangle"></i> Low Stock
+                </span>
+                <span th:if="${product.stockQuantity > 5}"
+                      class="badge bg-success">
+                    <i class="fas fa-check-circle"></i> In Stock
+                </span>
+            </div>
+        </div>
+
+        <!-- Product Details & Actions -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body p-4">
+                    <h2 class="card-title mb-3" th:text="${product.name}">Product Name</h2>
+                    <div class="price-tag mb-4">
+                        <i class="fas fa-dollar-sign"></i><span th:text="${#numbers.formatDecimal(product.price, 1, 2)}">0.00</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="section-title"><i class="fas fa-align-left"></i> Description</h5>
+                        <p th:text="${product.description != null ? product.description : 'No description available'}"
+                           class="text-muted" style="line-height: 1.8;"></p>
+                    </div>
+
+                    <!-- Stock Information -->
+                    <div class="availability-card mb-4">
+                        <h5 class="mb-3"><i class="fas fa-box"></i> Availability</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold">Stock Quantity:</span>
+                            <strong th:class="${product.stockQuantity == 0} ? 'stock-out' : (${product.stockQuantity <= 5} ? 'stock-low' : 'stock-good')"
+                                    th:text="${product.stockQuantity} + ' units'">
+                            </strong>
+                        </div>
+                        <div class="progress" style="height: 15px; border-radius: 10px;">
+                            <div th:class="${product.stockQuantity == 0} ? 'progress-bar bg-danger' : (${product.stockQuantity <= 5} ? 'progress-bar bg-warning' : 'progress-bar bg-success')"
+                                 th:style="'width: ' + ${product.stockQuantity > 50 ? 100 : product.stockQuantity * 2} + '%'"
+                                 role="progressbar"
+                                 style="border-radius: 10px;">
+                            </div>
+                        </div>
+                        <div class="mt-2 text-center">
+                            <span th:if="${product.stockQuantity <= 5 and product.stockQuantity > 0}" class="text-warning fw-bold">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Only <span th:text="${product.stockQuantity}"></span> left - order soon!
+                            </span>
+                            <span th:if="${product.stockQuantity == 0}" class="text-danger fw-bold">
+                                <i class="fas fa-times-circle"></i>
+                                Currently out of stock
+                            </span>
+                            <span th:if="${product.stockQuantity > 5}" class="text-success fw-bold">
+                                <i class="fas fa-check-circle"></i>
+                                Plenty in stock
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Quantity Selection & Action Buttons -->
+                    <div class="mb-4">
+                        <h5 class="section-title"><i class="fas fa-cart-plus"></i> Add to Cart</h5>
+                        <form th:action="@{/buyer/cart/add}" method="post" id="addToCartForm">
+                            <input type="hidden" name="productId" th:value="${product.id}">
+                            <div class="row align-items-end g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Quantity</label>
+                                    <div class="input-group quantity-control">
+                                        <button class="btn btn-outline-primary" type="button" id="decreaseQty">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="number" class="form-control text-center fw-bold" id="quantity" name="quantity"
+                                               value="1" min="1" th:max="${product.stockQuantity}">
+                                        <button class="btn btn-outline-primary" type="button" id="increaseQty">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">Max: <span th:text="${product.stockQuantity}"></span> units</div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="d-grid">
+                                        <button th:if="${product.stockQuantity > 0}"
+                                                class="btn btn-gradient btn-lg"
+                                                type="submit"
+                                                id="addToCartBtn">
+                                            <i class="fas fa-cart-plus"></i> Add to Cart
+                                        </button>
+                                        <button th:if="${product.stockQuantity == 0}"
+                                                class="btn btn-secondary btn-lg" disabled>
+                                            <i class="fas fa-times"></i> Out of Stock
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Seller Information -->
+                    <div class="seller-info">
+                        <h6 class="mb-3"><i class="fas fa-store"></i> Seller Information</h6>
+                        <ul class="feature-list">
+                            <li class="d-flex justify-content-between">
+                                <span><i class="fas fa-user text-primary"></i> Seller:</span>
+                                <strong th:text="${product.seller.name}"></strong>
+                            </li>
+                            <li class="d-flex justify-content-between">
+                                <span><i class="fas fa-envelope text-info"></i> Email:</span>
+                                <strong th:text="${product.seller.email}"></strong>
+                            </li>
+                            <li class="d-flex justify-content-between">
+                                <span><i class="fas fa-phone text-success"></i> Contact:</span>
+                                <strong th:text="${product.seller.phone ?: 'Not provided'}"></strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    <div th:if="${relatedProducts != null and relatedProducts.size() > 0}" class="row mt-5">
+        <div class="col-12">
+            <h2 class="section-title">
+                <i class="fas fa-layer-group"></i> Related Products in <span th:text="${product.category}"></span>
+            </h2>
+            <div class="card">
+                <div class="card-header" style="background: var(--primary-gradient);">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-fire"></i> You May Also Like
+                        <span class="badge bg-light text-dark ms-2" th:text="${relatedProducts.size()} + ' items'"></span>
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div th:each="relatedProduct, iterStat : ${relatedProducts}" class="col-md-3 mb-4"
+                             th:style="'animation-delay: ' + ${iterStat.index * 0.1} + 's;'">
+                            <div class="card related-product-card h-100">
+                                <div class="position-relative">
+                                    <img th:if="${relatedProduct.imageUrl}"
+                                         th:src="${relatedProduct.imageUrl}"
+                                         class="related-product-image"
+                                         th:alt="${relatedProduct.name}">
+                                    <div th:unless="${relatedProduct.imageUrl}"
+                                         class="related-product-image d-flex align-items-center justify-content-center"
+                                         style="background: var(--info-gradient);">
+                                        <i class="fas fa-music fa-3x text-white"></i>
+                                    </div>
+                                    <span th:if="${relatedProduct.stockQuantity <= 5 and relatedProduct.stockQuantity > 0}"
+                                          class="badge bg-warning position-absolute top-0 end-0 m-2">
+                                        <i class="fas fa-exclamation-triangle"></i> Low Stock
+                                    </span>
+                                    <span th:if="${relatedProduct.stockQuantity == 0}"
+                                          class="badge bg-danger position-absolute top-0 end-0 m-2">
+                                        <i class="fas fa-times-circle"></i> Out of Stock
+                                    </span>
+                                </div>
+                                <div class="card-body d-flex flex-column p-3">
+                                    <h6 class="card-title fw-bold mb-2" 
+                                        th:text="${#strings.length(relatedProduct.name) > 40 ? #strings.substring(relatedProduct.name, 0, 40) + '...' : relatedProduct.name}">
+                                    </h6>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-success fw-bold" style="font-size: 1.2rem;"
+                                              th:text="'$' + ${#numbers.formatDecimal(relatedProduct.price, 1, 2)}"></span>
+                                        <span class="badge bg-light text-dark border"
+                                              th:text="${relatedProduct.brand}"></span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small th:class="${relatedProduct.stockQuantity == 0} ? 'stock-out' : (${relatedProduct.stockQuantity <= 5} ? 'stock-low' : 'stock-good')"
+                                               th:text="${relatedProduct.stockQuantity} + ' in stock'">
+                                        </small>
+                                    </div>
+                                    <div class="mt-auto">
+                                        <a th:href="@{/buyer/products/{id}(id=${relatedProduct.id})}"
+                                           class="btn btn-outline-primary w-100">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Quantity control
+    document.addEventListener('DOMContentLoaded', function() {
+        const quantityInput = document.getElementById('quantity');
+        const decreaseBtn = document.getElementById('decreaseQty');
+        const increaseBtn = document.getElementById('increaseQty');
+        const maxQuantity = parseInt(quantityInput.getAttribute('max'));
+
+        // Update cart count on page load
+        updateCartCount();
+
+        // Quantity decrease
+        decreaseBtn.addEventListener('click', function() {
+            let currentQty = parseInt(quantityInput.value);
+            if (currentQty > 1) {
+                quantityInput.value = currentQty - 1;
+            }
+        });
+
+        // Quantity increase
+        increaseBtn.addEventListener('click', function() {
+            let currentQty = parseInt(quantityInput.value);
+            if (currentQty < maxQuantity) {
+                quantityInput.value = currentQty + 1;
+            } else {
+                alert('Cannot add more than available stock: ' + maxQuantity);
+            }
+        });
+
+        // Quantity input validation
+        quantityInput.addEventListener('change', function() {
+            let value = parseInt(this.value);
+            if (isNaN(value) || value < 1) {
+                this.value = 1;
+            } else if (value > maxQuantity) {
+                this.value = maxQuantity;
+                alert('Quantity limited to available stock: ' + maxQuantity);
+            }
+        });
+
+        // Form submission
+        const form = document.getElementById('addToCartForm');
+        form.addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('addToCartBtn');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            submitBtn.disabled = true;
+
+            // Form will submit normally
+        });
+    });
+
+    // Update cart count
+    function updateCartCount() {
+        fetch('/buyer/cart/count')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(count => {
+                const cartBadge = document.getElementById('cartBadge');
+                if (cartBadge) {
+                    if (count > 0) {
+                        cartBadge.textContent = count;
+                        cartBadge.style.display = 'inline';
+                    } else {
+                        cartBadge.style.display = 'none';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching cart count:', error);
+                const cartBadge = document.getElementById('cartBadge');
+                if (cartBadge) {
+                    cartBadge.style.display = 'none';
+                }
+            });
+    }
+</script>
+</body>
+</html>

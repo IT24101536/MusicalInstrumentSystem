@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Financial Reports - MusicStore Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        .stat-card {
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .growth-positive {
+            color: #28a745;
+        }
+        .growth-negative {
+            color: #dc3545;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+        .export-btn {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">🎵 MusicStore</a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-warning me-3">Administrator: <span th:text="${user.name}">Admin</span></span>
+            <a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+            <a class="nav-link" th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h2><i class="fas fa-chart-line"></i> Financial Reporting & Analytics</h2>
+                    <p class="mb-0">Comprehensive business intelligence for informed decision-making</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Period Selection -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-calendar-alt"></i> Report Period Selection</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" th:action="@{/admin/reports}" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Quick Period</label>
+                            <select class="form-select" name="period" id="periodSelect" onchange="toggleCustomDates()">
+                                <option value="current" th:selected="${selectedPeriod == 'current'}">Current Month</option>
+                                <option value="month" th:selected="${selectedPeriod == 'month'}">Last 30 Days</option>
+                                <option value="quarter" th:selected="${selectedPeriod == 'quarter'}">Last Quarter (90 Days)</option>
+                                <option value="year" th:selected="${selectedPeriod == 'year'}">Last Year</option>
+                                <option value="custom" th:selected="${selectedPeriod == 'custom'}">Custom Range</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3" id="startDateDiv" style="display: none;">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" class="form-control" name="startDate" th:value="${startDate}">
+                        </div>
+                        <div class="col-md-3" id="endDateDiv" style="display: none;">
+                            <label class="form-label">End Date</label>
+                            <input type="date" class="form-control" name="endDate" th:value="${endDate}">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-sync-alt"></i> Generate Report
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card bg-success text-white">
+                <div class="card-body">
+                    <h6><i class="fas fa-dollar-sign"></i> Total Revenue</h6>
+                    <div class="metric-value" th:text="'$' + ${#numbers.formatDecimal(totalRevenue, 1, 2)}">$0.00</div>
+                    <small th:if="${growthRate >= 0}" class="text-light">
+                        <i class="fas fa-arrow-up"></i> <span th:text="${#numbers.formatDecimal(growthRate, 1, 1)}">0</span>% vs previous period
+                    </small>
+                    <small th:if="${growthRate < 0}" class="text-light">
+                        <i class="fas fa-arrow-down"></i> <span th:text="${#numbers.formatDecimal(Math.abs(growthRate), 1, 1)}">0</span>% vs previous period
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-info text-white">
+                <div class="card-body">
+                    <h6><i class="fas fa-receipt"></i> Total Transactions</h6>
+                    <div class="metric-value" th:text="${totalTransactions}">0</div>
+                    <small class="text-light"><span th:text="${ordersInRange}">0</span> orders in period</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-warning text-white">
+                <div class="card-body">
+                    <h6><i class="fas fa-chart-bar"></i> Average Order Value</h6>
+                    <div class="metric-value" th:text="'$' + ${#numbers.formatDecimal(averageOrderValue, 1, 2)}">$0.00</div>
+                    <small class="text-light">Per transaction</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-secondary text-white">
+                <div class="card-body">
+                    <h6><i class="fas fa-clock"></i> Pending Revenue</h6>
+                    <div class="metric-value" th:text="'$' + ${#numbers.formatDecimal(pendingRevenue, 1, 2)}">$0.00</div>
+                    <small class="text-light">Awaiting payment</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <a th:href="@{/admin/reports/saved}" class="btn btn-primary">
+                        <i class="fas fa-folder-open"></i> View Saved Reports
+                    </a>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#saveReportModal">
+                        <i class="fas fa-save"></i> Save This Report
+                    </button>
+                </div>
+                <div>
+                    <button class="btn btn-outline-primary export-btn" onclick="exportToPDF()">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <button class="btn btn-outline-success export-btn" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                    <button class="btn btn-outline-info export-btn" onclick="window.print()">
+                        <i class="fas fa-print"></i> Print Report
+                    </button>
+                    <a th:href="@{/admin/financial-records}" class="btn btn-outline-secondary export-btn">
+                        <i class="fas fa-file-invoice-dollar"></i> Financial Records
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row mb-4">
+        <!-- Sales Trend Chart -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Daily Sales Trend (Last 30 Days)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="salesTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Distribution -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie"></i> Sales by Category</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Revenue Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar"></i> Monthly Revenue Comparison</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="monthlyRevenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Products Table -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-trophy"></i> Top 10 Products by Revenue</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Product Name</th>
+                                <th class="text-end">Revenue</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="product, iterStat : ${topProducts}">
+                                <td th:text="${iterStat.count}">1</td>
+                                <td th:text="${product.key}">Product Name</td>
+                                <td class="text-end text-success fw-bold"
+                                    th:text="'$' + ${#numbers.formatDecimal(product.value, 1, 2)}">$0.00</td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">Best Seller</span>
+                                </td>
+                            </tr>
+                            <tr th:if="${topProducts == null or topProducts.size() == 0}">
+                                <td colspan="4" class="text-center text-muted">No sales data available for this period</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Breakdown -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-tags"></i> Category Performance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <div class="list-group-item" th:each="category : ${salesByCategory}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span th:text="${category.key}">Category</span>
+                                <span class="badge bg-primary rounded-pill"
+                                      th:text="'$' + ${#numbers.formatDecimal(category.value, 1, 0)}">$0</span>
+                            </div>
+                            <small class="text-muted" th:if="${quantityByCategory.get(category.key) != null}">
+                                <span th:text="${quantityByCategory.get(category.key)}">0</span> units sold
+                            </small>
+                        </div>
+                        <div class="list-group-item text-center text-muted"
+                             th:if="${salesByCategory == null or salesByCategory.size() == 0}">
+                            No category data available
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insights & Recommendations -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5><i class="fas fa-lightbulb"></i> Business Insights & Recommendations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-check-circle text-success"></i> Key Strengths</h6>
+                            <ul>
+                                <li th:if="${growthRate > 0}">
+                                    Revenue growth of <strong th:text="${#numbers.formatDecimal(growthRate, 1, 1)}">0</strong>%
+                                    compared to previous period - continue current strategies
+                                </li>
+                                <li th:if="${averageOrderValue > 100}">
+                                    Strong average order value indicates customer purchasing power
+                                </li>
+                                <li th:if="${totalTransactions > 50}">
+                                    Healthy transaction volume demonstrates market presence
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-exclamation-triangle text-warning"></i> Areas for Improvement</h6>
+                            <ul>
+                                <li th:if="${pendingRevenue > totalRevenue * 0.1}">
+                                    High pending revenue - consider payment reminder campaigns
+                                </li>
+                                <li th:if="${growthRate < 0}">
+                                    Revenue decline detected - analyze market trends and adjust pricing
+                                </li>
+                                <li>Focus on promoting top-performing products to maximize profitability</li>
+                                <li>Consider bundle deals for slower-moving categories</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Save Report Modal -->
+<div class="modal fade" id="saveReportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{/admin/reports/save}" method="post">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-save"></i> Save Financial Report</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> This will save the current report data to the database for future reference.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Report Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="reportName"
+                               placeholder="e.g., Q4 2025 Financial Report" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes (Optional)</label>
+                        <textarea class="form-control" name="notes" rows="3"
+                                  placeholder="Add any additional notes or comments about this report..."></textarea>
+                    </div>
+
+                    <!-- Hidden fields to pass report data -->
+                    <input type="hidden" name="reportPeriod" th:value="${selectedPeriod}">
+                    <input type="hidden" name="startDate" th:value="${startDate}">
+                    <input type="hidden" name="endDate" th:value="${endDate}">
+                    <input type="hidden" name="totalRevenue" th:value="${totalRevenue}">
+                    <input type="hidden" name="pendingRevenue" th:value="${pendingRevenue}">
+                    <input type="hidden" name="totalTransactions" th:value="${totalTransactions}">
+                    <input type="hidden" name="averageOrderValue" th:value="${averageOrderValue}">
+                    <input type="hidden" name="growthRate" th:value="${growthRate}">
+                    <input type="hidden" name="ordersInRange" th:value="${ordersInRange}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Toggle custom date inputs
+    function toggleCustomDates() {
+        const period = document.getElementById('periodSelect').value;
+        const startDiv = document.getElementById('startDateDiv');
+        const endDiv = document.getElementById('endDateDiv');
+
+        if (period === 'custom') {
+            startDiv.style.display = 'block';
+            endDiv.style.display = 'block';
+        } else {
+            startDiv.style.display = 'none';
+            endDiv.style.display = 'none';
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleCustomDates();
+        createCharts();
+    });
+
+    // Create all charts with Thymeleaf inline data
+    function createCharts() {
+        // Get data from Thymeleaf - this properly embeds server data
+        var dailySalesData = /*[[${dailySales}]]*/ {};
+        var salesByCategoryData = /*[[${salesByCategory}]]*/ {};
+        var monthlySalesData = /*[[${monthlySales}]]*/ {};
+
+        console.log('📊 Loading Chart Data...');
+        console.log('Daily Sales:', dailySalesData);
+        console.log('Category Data:', salesByCategoryData);
+        console.log('Monthly Data:', monthlySalesData);
+
+        // Daily Sales Trend Chart
+        const dailyLabels = Object.keys(dailySalesData);
+        const dailyValues = Object.values(dailySalesData);
+
+        console.log('Daily chart points:', dailyLabels.length);
+
+        new Chart(document.getElementById('salesTrendChart'), {
+            type: 'line',
+            data: {
+                labels: dailyLabels.length > 0 ? dailyLabels : ['No Data Available'],
+                datasets: [{
+                    label: 'Daily Sales ($)',
+                    data: dailyValues.length > 0 ? dailyValues : [0],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Sales: $' + context.parsed.y.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Sales by Category - Doughnut Chart
+        const categoryLabels = Object.keys(salesByCategoryData);
+        const categoryValues = Object.values(salesByCategoryData);
+
+        console.log('Category chart segments:', categoryLabels.length);
+
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'doughnut',
+            data: {
+                labels: categoryLabels.length > 0 ? categoryLabels : ['No Data Available'],
+                datasets: [{
+                    data: categoryValues.length > 0 ? categoryValues : [1],
+                    backgroundColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(255, 205, 86)',
+                        'rgb(75, 192, 192)',
+                        'rgb(153, 102, 255)',
+                        'rgb(255, 159, 64)',
+                        'rgb(201, 203, 207)',
+                        'rgb(255, 140, 0)',
+                        'rgb(144, 238, 144)',
+                        'rgb(255, 182, 193)'
+                    ],
+                    borderWidth: 3,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return label + ': $' + value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Monthly Revenue - Bar Chart
+        const monthlyLabels = Object.keys(monthlySalesData);
+        const monthlyValues = Object.values(monthlySalesData);
+
+        console.log('Monthly chart bars:', monthlyLabels.length);
+
+        new Chart(document.getElementById('monthlyRevenueChart'), {
+            type: 'bar',
+            data: {
+                labels: monthlyLabels.length > 0 ? monthlyLabels : ['No Data Available'],
+                datasets: [{
+                    label: 'Monthly Revenue ($)',
+                    data: monthlyValues.length > 0 ? monthlyValues : [0],
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    hoverBackgroundColor: 'rgba(54, 162, 235, 0.9)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Revenue: $' + context.parsed.y.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Log chart creation status
+        console.log('✅ Charts initialized successfully!');
+        console.log('📈 Daily Sales:', dailyLabels.length, 'data points');
+        console.log('🎯 Categories:', categoryLabels.length, 'categories');
+        console.log('📊 Monthly Data:', monthlyLabels.length, 'months');
+
+        // Show helpful message if no data
+        if (dailyLabels.length === 0 && categoryLabels.length === 0 && monthlyLabels.length === 0) {
+            console.warn('⚠️ No sales data found!');
+            console.warn('💡 To see charts with data, you need completed orders in the system.');
+            console.warn('📝 Run the insert_sample_orders.sql script to add sample data.');
+        }
+    }
+
+    // Export functions
+    function exportToPDF() {
+        alert('PDF export functionality - implement with jsPDF library');
+    }
+
+    function exportToExcel() {
+        alert('Excel export functionality - implement with SheetJS library');
+    }
+    /*]]>*/
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

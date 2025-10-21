@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Payment Management - MusicStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .payment-card {
+            border-left: 4px solid #007bff;
+        }
+        .payment-completed {
+            border-left-color: #28a745;
+        }
+        .payment-failed {
+            border-left-color: #dc3545;
+        }
+        .payment-pending {
+            border-left-color: #ffc107;
+        }
+        .payment-refunded {
+            border-left-color: #6c757d;
+        }
+        .stat-card {
+            transition: transform 0.2s ease-in-out;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">🎵 MusicStore</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+            <a class="nav-link" th:href="@{/admin/users}">Users</a>
+            <a class="nav-link active" th:href="@{/admin/payments}">Payments</a>
+            <span class="navbar-text text-warning">Administrator</span>
+            <a class="nav-link" th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <!-- Debug Information -->
+    <div class="alert alert-info" th:if="${payments != null}">
+        <h6><i class="fas fa-info-circle"></i> Debug Information</h6>
+        <p class="mb-1"><strong>Payments Count:</strong> <span th:text="${payments.size()}"></span></p>
+        <p class="mb-1"><strong>Payments List:</strong> <span th:text="${payments}"></span></p>
+        <p class="mb-0"><strong>Statistics:</strong> <span th:text="${statistics}"></span></p>
+    </div>
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h2>💳 Payment Management</h2>
+                    <p class="mb-0">Manage and monitor all payment transactions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+        <th:block th:if="${param.success[0] == 'payment_deleted'}">
+            ✅ Payment deleted successfully!
+        </th:block>
+        <th:block th:if="${param.success[0] == 'payments_deleted'}">
+            ✅ Selected payments deleted successfully!
+        </th:block>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show">
+        <th:block th:if="${param.error[0] == 'payment_not_found'}">
+            ❌ Payment not found!
+        </th:block>
+        <th:block th:if="${param.error[0] == 'no_payments_found'}">
+            ❌ No payments found to delete!
+        </th:block>
+        <th:block th:if="${param.error[0] == 'delete_failed'}">
+            ❌ Failed to delete payments!
+        </th:block>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card stat-card text-white bg-primary">
+                <div class="card-body text-center p-2">
+                    <h6>Total Revenue</h6>
+                    <h4 th:text="'$' + ${#numbers.formatDecimal(statistics.totalRevenue, 1, 2)}">$0</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card stat-card text-white bg-success">
+                <div class="card-body text-center p-2">
+                    <h6>Completed</h6>
+                    <h4 th:text="${statistics.completedPayments}">0</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card stat-card text-white bg-warning">
+                <div class="card-body text-center p-2">
+                    <h6>Pending</h6>
+                    <h4 th:text="${statistics.pendingPayments}">0</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card stat-card text-white bg-danger">
+                <div class="card-body text-center p-2">
+                    <h6>Failed</h6>
+                    <h4 th:text="${statistics.failedPayments}">0</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card stat-card text-white bg-info">
+                <div class="card-body text-center p-2">
+                    <h6>Total</h6>
+                    <h4 th:text="${statistics.totalPayments}">0</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card stat-card text-white bg-secondary">
+                <div class="card-body text-center p-2">
+                    <h6>Success Rate</h6>
+                    <h4 th:text="${#numbers.formatDecimal(statistics.successRate, 1, 2)} + '%'">0%</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-search"></i> Search & Filter</h5>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/admin/payments/search}" method="get">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="query" class="form-label">Search Query</label>
+                        <input type="text" class="form-control" id="query" name="query" 
+                               th:value="${searchQuery}" placeholder="Search by transaction ID, order ID...">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">All Status</option>
+                            <option value="PENDING" th:selected="${searchStatus == 'PENDING'}">Pending</option>
+                            <option value="COMPLETED" th:selected="${searchStatus == 'COMPLETED'}">Completed</option>
+                            <option value="FAILED" th:selected="${searchStatus == 'FAILED'}">Failed</option>
+                            <option value="REFUNDED" th:selected="${searchStatus == 'REFUNDED'}">Refunded</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="paymentMethod" class="form-label">Payment Method</label>
+                        <select class="form-select" id="paymentMethod" name="paymentMethod">
+                            <option value="">All Methods</option>
+                            <option value="Credit Card" th:selected="${searchPaymentMethod == 'Credit Card'}">Credit Card</option>
+                            <option value="PayPal" th:selected="${searchPaymentMethod == 'PayPal'}">PayPal</option>
+                            <option value="Bank Transfer" th:selected="${searchPaymentMethod == 'Bank Transfer'}">Bank Transfer</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="minAmount" class="form-label">Min Amount</label>
+                        <input type="number" class="form-control" id="minAmount" name="minAmount" 
+                               th:value="${searchMinAmount}" placeholder="0.00" step="0.01">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="maxAmount" class="form-label">Max Amount</label>
+                        <input type="number" class="form-control" id="maxAmount" name="maxAmount" 
+                               th:value="${searchMaxAmount}" placeholder="1000.00" step="0.01">
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-3">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate" 
+                               th:value="${searchStartDate}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" name="endDate" 
+                               th:value="${searchEndDate}">
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <a th:href="@{/admin/payments}" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-times"></i> Clear Filters
+                        </a>
+                        <a th:href="@{/admin/payments/analytics}" class="btn btn-outline-info">
+                            <i class="fas fa-chart-bar"></i> Analytics
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0"><i class="fas fa-cogs"></i> Quick Actions</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <a th:href="@{/admin/payments/status/COMPLETED}" class="btn btn-success w-100 mb-2">
+                        <i class="fas fa-check"></i> View Completed
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a th:href="@{/admin/payments/status/PENDING}" class="btn btn-warning w-100 mb-2">
+                        <i class="fas fa-clock"></i> View Pending
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a th:href="@{/admin/payments/status/FAILED}" class="btn btn-danger w-100 mb-2">
+                        <i class="fas fa-times"></i> View Failed
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a th:href="@{/admin/payments/status/REFUNDED}" class="btn btn-secondary w-100 mb-2">
+                        <i class="fas fa-undo"></i> View Refunded
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a th:href="@{/admin/payments/recent}" class="btn btn-info w-100 mb-2">
+                        <i class="fas fa-history"></i> Recent
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <div class="btn-group w-100 mb-2">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/admin/payments/export/csv}">Export CSV</a></li>
+                            <li><a class="dropdown-item" th:href="@{/admin/payments/export/pdf}">Export PDF</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0"><i class="fas fa-tasks"></i> Bulk Actions</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <a th:href="@{/admin/payments/delete-by-status/FAILED}"
+                       class="btn btn-outline-danger w-100"
+                       onclick="return confirm('Delete all FAILED payments?')">
+                        <i class="fas fa-trash"></i> Delete Failed
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a th:href="@{/admin/payments/delete-by-status/PENDING}"
+                       class="btn btn-outline-warning w-100"
+                       onclick="return confirm('Delete all PENDING payments?')">
+                        <i class="fas fa-trash"></i> Delete Pending
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <form th:action="@{/admin/payments/delete-multiple}" method="post" id="bulkDeleteForm">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Enter payment IDs (comma separated)"
+                                   name="paymentIds" id="paymentIdsInput">
+                            <button type="submit" class="btn btn-danger"
+                                    onclick="return confirm('Delete the specified payments?')">
+                                <i class="fas fa-trash"></i> Delete by IDs
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <form th:action="@{/admin/payments/bulk-update-status}" method="post" id="bulkStatusForm">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Payment IDs (comma separated)"
+                                   name="paymentIds" id="bulkStatusIds">
+                            <select class="form-select" name="newStatus" id="newStatus">
+                                <option value="COMPLETED">Mark as Completed</option>
+                                <option value="FAILED">Mark as Failed</option>
+                                <option value="PENDING">Mark as Pending</option>
+                                <option value="REFUNDED">Mark as Refunded</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-edit"></i> Update Status
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <form th:action="@{/admin/payments/bulk-refund}" method="post" id="bulkRefundForm">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Payment IDs (comma separated)"
+                                   name="paymentIds" id="bulkRefundIds">
+                            <input type="text" class="form-control" placeholder="Refund reason"
+                                   name="reason" id="refundReason" required>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-undo"></i> Bulk Refund
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payments List -->
+    <div class="card">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-credit-card"></i> All Payments
+                <span class="badge bg-secondary" th:text="${payments.size()} + ' records'"></span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Order ID</th>
+                        <th>Transaction ID</th>
+                        <th>Method</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Debug information -->
+                    <tr th:if="${payments == null or payments.empty}" class="table-warning">
+                        <td colspan="8" class="text-center">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>No payments found</strong>
+                            <br>
+                            <small>Payments list: <span th:text="${payments}"></span></small>
+                        </td>
+                    </tr>
+                    
+                    <!-- Payment rows -->
+                    <tr th:each="payment : ${payments}"
+                        th:class="${payment.status == 'COMPLETED'} ? 'payment-completed' : (${payment.status == 'FAILED'} ? 'payment-failed' : (${payment.status == 'PENDING'} ? 'payment-pending' : 'payment-refunded'))">
+                        <td th:text="${payment.id}"></td>
+                        <td>
+                            <strong th:text="${payment.order?.id ?: 'N/A'}"></strong>
+                        </td>
+                        <td>
+                            <code th:text="${payment.transactionId ?: 'N/A'}"></code>
+                        </td>
+                        <td th:text="${payment.paymentMethod ?: 'N/A'}"></td>
+                        <td>
+                            <strong th:text="'$' + ${#numbers.formatDecimal(payment.amount ?: 0, 1, 2)}"></strong>
+                        </td>
+                        <td>
+                            <th:block th:switch="${payment.status ?: 'UNKNOWN'}">
+                                <span th:case="'COMPLETED'" class="badge bg-success">COMPLETED</span>
+                                <span th:case="'FAILED'" class="badge bg-danger">FAILED</span>
+                                <span th:case="'PENDING'" class="badge bg-warning">PENDING</span>
+                                <span th:case="'REFUNDED'" class="badge bg-secondary">REFUNDED</span>
+                                <span th:case="*" class="badge bg-dark" th:text="${payment.status ?: 'UNKNOWN'}"></span>
+                            </th:block>
+                        </td>
+                        <td th:text="${payment.paymentDate != null ? #temporals.format(payment.paymentDate, 'yyyy-MM-dd HH:mm') : 'N/A'}"></td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn btn-outline-info btn-sm"
+                                        th:onclick="|showPaymentDetails(${payment.id})|">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <a th:href="@{'/admin/payments/delete/' + ${payment.id}}"
+                                   class="btn btn-outline-danger btn-sm delete-btn"
+                                   th:data-paymentid="${payment.id}"
+                                   th:data-transactionid="${payment.transactionId}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${payments == null or payments.size() == 0}">
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="fas fa-credit-card fa-3x mb-3"></i>
+                            <h5>No payments found</h5>
+                            <p class="text-muted">Payment records will appear here once customers make purchases.</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Details Modal -->
+<div class="modal fade" id="paymentDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Payment Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="paymentDetailsContent">
+                <!-- Details will be loaded here via JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Delete confirmation
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                const paymentId = this.getAttribute('data-paymentid');
+                const transactionId = this.getAttribute('data-transactionid');
+
+                const confirmed = confirm('Are you sure you want to delete payment #' + paymentId +
+                    ' (Transaction: ' + transactionId + ')?\n\nThis action cannot be undone.');
+
+                if (!confirmed) {
+                    event.preventDefault();
+                }
+            });
+        });
+
+        // Bulk delete form validation
+        const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+        if (bulkDeleteForm) {
+            bulkDeleteForm.addEventListener('submit', function(event) {
+                const input = document.getElementById('paymentIdsInput');
+                if (!input.value.trim()) {
+                    alert('Please enter payment IDs');
+                    event.preventDefault();
+                }
+            });
+        }
+    });
+
+    // Show payment details (placeholder function)
+    function showPaymentDetails(paymentId) {
+        // In a real application, you would fetch payment details via AJAX
+        const modalContent = document.getElementById('paymentDetailsContent');
+        modalContent.innerHTML = `
+            <div class="text-center">
+                <i class="fas fa-info-circle fa-3x text-primary mb-3"></i>
+                <h5>Payment Details</h5>
+                <p class="text-muted">Payment ID: ${paymentId}</p>
+                <p>Detailed payment information would be displayed here.</p>
+                <p class="small text-muted">This feature would typically show complete payment details,
+                including customer information, order items, and payment method specifics.</p>
+            </div>
+        `;
+
+        const modal = new bootstrap.Modal(document.getElementById('paymentDetailsModal'));
+        modal.show();
+    }
+
+    // Auto-dismiss alerts after 5 seconds
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            if (alert.classList.contains('show')) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        });
+    }, 5000);
+</script>
+</body>
+</html>

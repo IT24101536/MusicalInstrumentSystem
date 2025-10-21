@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Order Details - MusicStore Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">🎵 MusicStore Admin</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+            <a class="nav-link" th:href="@{/admin/users}">Users</a>
+            <a class="nav-link active" th:href="@{/admin/orders}">Orders</a>
+            <a class="nav-link" th:href="@{/admin/payments}">Payments</a>
+            <span class="navbar-text text-warning ms-2">Administrator</span>
+            <a class="nav-link" th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Back Button -->
+            <a th:href="@{/admin/orders}" class="btn btn-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Orders
+            </a>
+
+            <!-- Order Header -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-receipt"></i> Order Details 
+                        <span th:text="'#' + ${order.id}">#1</span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Customer Information</h5>
+                            <p><strong>Name:</strong> <span th:text="${order.buyer != null ? order.buyer.name : 'N/A'}">John Doe</span></p>
+                            <p><strong>Email:</strong> <span th:text="${order.buyer != null ? order.buyer.email : 'N/A'}">john@example.com</span></p>
+                            <p><strong>Phone:</strong> <span th:text="${order.buyer != null && order.buyer.phone != null ? order.buyer.phone : 'N/A'}">N/A</span></p>
+                            <p><strong>Shipping Address:</strong> <span th:text="${order.shippingAddress}">123 Main St</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Order Information</h5>
+                            <p><strong>Order Date:</strong> <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01</span></p>
+                            <p><strong>Total Amount:</strong> <strong class="text-success" th:text="'$' + ${#numbers.formatDecimal(order.totalAmount, 1, 2)}">$100.00</strong></p>
+                            <p>
+                                <strong>Payment Status:</strong> 
+                                <span class="badge" th:classappend="${'bg-' + order.getPaymentStatusBadge()}" th:text="${order.paymentStatus}">PENDING</span>
+                            </p>
+                            <p>
+                                <strong>Delivery Status:</strong> 
+                                <span class="badge" th:classappend="${'bg-' + order.getStatusBadge()}" th:text="${order.status}">PENDING</span>
+                            </p>
+                            <p th:if="${order.paymentMethod != null}">
+                                <strong>Payment Method:</strong> <span th:text="${order.paymentMethod}">Credit Card</span>
+                            </p>
+                            <p th:if="${order.transactionId != null}">
+                                <strong>Transaction ID:</strong> <code th:text="${order.transactionId}">TXN123</code>
+                            </p>
+                            <p th:if="${order.deliveryDate != null}">
+                                <strong>Delivery Date:</strong> <span th:text="${#temporals.format(order.deliveryDate, 'yyyy-MM-dd HH:mm:ss')}">2024-01-05</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update Status Form -->
+            <div class="card mb-3">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="fas fa-edit"></i> Update Delivery Status</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{'/admin/orders/update-status/' + ${order.id}}" method="post" class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label"><strong>Select New Status:</strong></label>
+                            <select name="status" class="form-select" required>
+                                <option value="">-- Select Status --</option>
+                                <option value="PENDING" th:selected="${order.status == 'PENDING'}">⏳ Pending - Order placed, awaiting confirmation</option>
+                                <option value="CONFIRMED" th:selected="${order.status == 'CONFIRMED'}">✅ Confirmed - Payment received, preparing order</option>
+                                <option value="SHIPPED" th:selected="${order.status == 'SHIPPED'}">🚚 Shipped - Order is on the way</option>
+                                <option value="DELIVERED" th:selected="${order.status == 'DELIVERED'}">📦 Delivered - Order successfully delivered</option>
+                                <option value="CANCELLED" th:selected="${order.status == 'CANCELLED'}">❌ Cancelled - Order cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100" onclick="return confirm('Are you sure you want to update the order status?')">
+                                <i class="fas fa-save"></i> Update Status
+                            </button>
+                        </div>
+                    </form>
+                    <div class="alert alert-info mt-3 mb-0">
+                        <small>
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>Note:</strong> Changing status to "Delivered" will automatically record the delivery date.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="card mb-3">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-box"></i> Order Items</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Unit Price</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="item : ${order.orderItems}">
+                                <td>
+                                    <strong th:text="${item.product != null ? item.product.name : 'Unknown Product'}">Product Name</strong>
+                                    <br>
+                                    <small class="text-muted" th:text="${item.product != null ? item.product.category : ''}">Category</small>
+                                </td>
+                                <td th:text="'$' + ${#numbers.formatDecimal(item.unitPrice, 1, 2)}">$50.00</td>
+                                <td th:text="${item.quantity}">2</td>
+                                <td><strong th:text="'$' + ${#numbers.formatDecimal(item.totalPrice, 1, 2)}">$100.00</strong></td>
+                            </tr>
+                            </tbody>
+                            <tfoot class="table-light">
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Total Amount:</strong></td>
+                                <td><strong class="text-success" th:text="'$' + ${#numbers.formatDecimal(order.totalAmount, 1, 2)}">$100.00</strong></td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Timeline -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-clock"></i> Order Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <strong>Order Placed:</strong> 
+                            <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01</span>
+                        </li>
+                        <li class="list-group-item" th:if="${order.paymentDate != null}">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <strong>Payment Received:</strong> 
+                            <span th:text="${#temporals.format(order.paymentDate, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01</span>
+                        </li>
+                        <li class="list-group-item" th:if="${order.status == 'CONFIRMED' || order.status == 'SHIPPED' || order.status == 'DELIVERED'}">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <strong>Order Confirmed</strong>
+                        </li>
+                        <li class="list-group-item" th:if="${order.status == 'SHIPPED' || order.status == 'DELIVERED'}">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <strong>Order Shipped</strong>
+                        </li>
+                        <li class="list-group-item" th:if="${order.deliveryDate != null}">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <strong>Order Delivered:</strong> 
+                            <span th:text="${#temporals.format(order.deliveryDate, 'yyyy-MM-dd HH:mm:ss')}">2024-01-05</span>
+                        </li>
+                        <li class="list-group-item" th:if="${order.status == 'CANCELLED'}">
+                            <i class="fas fa-times-circle text-danger"></i>
+                            <strong>Order Cancelled</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

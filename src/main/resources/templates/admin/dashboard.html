@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Dashboard - MusicStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-card .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px;
+            font-weight: 600;
+            border-radius: 15px 15px 0 0 !important;
+        }
+
+        .nav-pills .nav-link {
+            color: #495057;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-pills .nav-link:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .admin-info-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: none;
+        }
+
+        .main-card .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 25px;
+            border-radius: 15px 15px 0 0 !important;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .welcome-banner h2 {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            height: 100%;
+            border-left: 4px solid;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .stat-card.users { border-left-color: #667eea; }
+        .stat-card.products { border-left-color: #f093fb; }
+        .stat-card.orders { border-left-color: #ffd89b; }
+        .stat-card.pending { border-left-color: #fe9a8b; }
+
+        .stat-card .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card.users .icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .stat-card.products .icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .stat-card.orders .icon { background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%); color: white; }
+        .stat-card.pending .icon { background: linear-gradient(135deg, #fe9a8b 0%, #fe6b8b 100%); color: white; }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #6c757d;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .action-btn {
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            margin-bottom: 12px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .action-btn.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .action-btn.warning { background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%); }
+        .action-btn.success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .action-btn.info { background: linear-gradient(135deg, #3f51b5 0%, #5a55ae 100%); }
+        .action-btn.secondary { background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%); }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">🎵 MusicStore</a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-warning">Administrator: <span th:text="${user.name}">Admin</span></span>
+            <a class="nav-link" th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bars"></i> Admin Menu</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-pills flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#"><i class="fas fa-chart-line"></i> Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/admin/users}"><i class="fas fa-users"></i> Manage Users</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/admin/orders}"><i class="fas fa-shopping-cart"></i> Manage Orders</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/admin/payments}"><i class="fas fa-credit-card"></i> Payment Management</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/admin/reports}"><i class="fas fa-file-alt"></i> Reports</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Admin Info Card -->
+            <div class="admin-info-card">
+                <h6><i class="fas fa-user-shield"></i> Administrator</h6>
+                <p class="mb-2"><i class="fas fa-user"></i> <strong>Name:</strong> <span th:text="${user.name}">Admin</span></p>
+                <p class="mb-2"><i class="fas fa-envelope"></i> <strong>Email:</strong> <span th:text="${user.email}">admin@musicstore.com</span></p>
+                <p class="mb-0"><i class="fas fa-shield-alt"></i> <strong>Role:</strong> <span class="badge bg-light text-dark">ADMIN</span></p>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="main-card">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-tachometer-alt"></i> Administrator Dashboard</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Welcome Banner -->
+                    <div class="welcome-banner">
+                        <h2><i class="fas fa-hand-wave"></i> Welcome back, <span th:text="${user.name}">Administrator</span>!</h2>
+                        <p><i class="fas fa-crown"></i> You have full system access to manage the Musical Instrument Store</p>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card users">
+                                <div class="icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h3 th:text="${totalUsers}">150</h3>
+                                <p>Total Users</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card products">
+                                <div class="icon">
+                                    <i class="fas fa-guitar"></i>
+                                </div>
+                                <h3 th:text="${totalProducts}">320</h3>
+                                <p>Total Products</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card orders">
+                                <div class="icon">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </div>
+                                <h3 th:text="${totalOrders}">450</h3>
+                                <p>Total Orders</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card pending">
+                                <div class="icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <h3 th:text="${pendingOrders}">12</h3>
+                                <p>Pending Orders</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5 class="mb-3"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a th:href="@{/admin/users}" class="btn action-btn primary w-100 text-white">
+                                <i class="fas fa-users"></i> Manage Users
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a th:href="@{/admin/orders}" class="btn action-btn warning w-100 text-white">
+                                <i class="fas fa-shopping-cart"></i> View Orders
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a th:href="@{/admin/payments}" class="btn action-btn success w-100 text-white">
+                                <i class="fas fa-credit-card"></i> Payment Management
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a th:href="@{/admin/reports}" class="btn action-btn info w-100 text-white">
+                                <i class="fas fa-file-alt"></i> Generate New Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

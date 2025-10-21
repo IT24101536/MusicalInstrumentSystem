@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Payment - MusicStore</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding-bottom: 50px;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .page-header {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      animation: slideDown 0.5s ease;
+    }
+
+    .page-header h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .summary-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      border: none;
+      position: sticky;
+      top: 20px;
+      animation: slideRight 0.6s ease;
+    }
+
+    .summary-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.2rem;
+      border-radius: 15px 15px 0 0;
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+
+    .payment-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      border: none;
+      animation: slideLeft 0.6s ease;
+    }
+
+    .payment-method-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+      border: 3px solid #e8ecff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      height: 100%;
+    }
+
+    .payment-method-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(102, 126, 234, 0.25);
+      border-color: #667eea;
+    }
+
+    .payment-method-card.selected {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: #667eea;
+      color: white;
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    }
+
+    .payment-method-card.selected .payment-icon {
+      animation: bounce 0.6s ease;
+    }
+
+    .payment-method-card.selected small {
+      color: rgba(255,255,255,0.9);
+    }
+
+    .payment-icon {
+      font-size: 3rem;
+      margin-bottom: 0.8rem;
+      transition: transform 0.3s ease;
+    }
+
+    .form-section {
+      background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+      border: 2px solid #e8ecff;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-top: 2rem;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .form-section h6 {
+      color: #667eea;
+      font-weight: 700;
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-section h6 i {
+      margin-right: 0.5rem;
+      font-size: 1.5rem;
+    }
+
+    .form-control {
+      border: 2px solid #e8ecff;
+      border-radius: 10px;
+      padding: 0.8rem;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+
+    .form-control:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-pay {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      border: none;
+      padding: 1.2rem;
+      font-size: 1.3rem;
+      font-weight: 700;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(56, 239, 125, 0.4);
+      color: white;
+    }
+
+    .btn-pay:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(56, 239, 125, 0.6);
+      color: white;
+    }
+
+    .btn-pay:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .btn-cancel {
+      background: white;
+      border: 2px solid #f5576c;
+      color: #f5576c;
+      padding: 1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      border-color: #f5576c;
+      transform: translateY(-2px);
+    }
+
+    .order-item {
+      padding: 0.8rem 0;
+      border-bottom: 1px dashed #e8ecff;
+      transition: background 0.3s ease;
+    }
+
+    .order-item:hover {
+      background: #f8f9ff;
+      border-radius: 8px;
+      padding-left: 0.5rem;
+    }
+
+    .order-item:last-child {
+      border-bottom: none;
+    }
+
+    .total-amount {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      padding: 1.2rem;
+      border-radius: 12px;
+      margin: 1.5rem 0;
+      color: white;
+    }
+
+    .security-badge {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+
+    .security-badge i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      animation: pulse 3s infinite;
+    }
+
+    .alert {
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      animation: slideDown 0.5s ease;
+    }
+
+    .card-header {
+      border-bottom: 3px solid #667eea;
+      background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+      font-weight: 600;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideRight {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .info-badge {
+      background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+      border-left: 4px solid #667eea;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .shipping-info {
+      background: #f8f9ff;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-top: 1rem;
+      border: 2px dashed #667eea;
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" th:href="@{/}">🎵 MusicStore</a>
+    <div class="navbar-nav ms-auto">
+      <span class="navbar-text text-white">Welcome, <span th:text="${user.name}">Buyer</span></span>
+      <a class="nav-link text-white" th:href="@{/buyer/dashboard}">Dashboard</a>
+      <a class="nav-link text-white" th:href="@{/buyer/orders}">Orders</a>
+      <a class="nav-link text-white" th:href="@{/logout}">Logout</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="page-header text-white text-center">
+        <h2><i class="fas fa-credit-card me-3"></i>Secure Payment</h2>
+        <p class="mb-0" style="font-size: 1.2rem;">Complete your order with encrypted payment processing</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Messages -->
+  <div th:if="${error}" class="row mb-3">
+    <div class="col-12">
+      <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Payment Error:</strong>
+        <span th:text="${errorMessage}">Error occurred</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    </div>
+  </div>
+
+  <div th:if="${param.error}" class="row mb-3">
+    <div class="col-12">
+      <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Error:</strong>
+        <span th:text="${param.message != null ? param.message[0] : 'Payment processing failed'}">Error occurred</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Order Summary -->
+    <div class="col-lg-5">
+      <div class="summary-card mb-4">
+        <div class="summary-header">
+          <i class="fas fa-receipt me-2"></i>Order Summary
+        </div>
+        <div class="card-body p-4">
+          <div class="mb-3">
+            <strong style="font-size: 1.1rem; color: #667eea;">Order #<span th:text="${order.id}"></span></strong>
+            <br>
+            <small class="text-muted">
+              <i class="fas fa-calendar me-1"></i>
+              <span th:text="${#temporals.format(order.orderDate, 'MMM dd, yyyy HH:mm')}"></span>
+            </small>
+          </div>
+
+          <div class="mb-3">
+            <h6 class="fw-bold" style="color: #2d3748;">
+              <i class="fas fa-box me-2 text-primary"></i>Order Items:
+            </h6>
+            <div th:each="item : ${order.orderItems}" class="order-item">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <div class="fw-bold" style="color: #2d3748; font-size: 0.95rem;" th:text="${item.product.name}"></div>
+                  <small class="text-muted">
+                    <i class="fas fa-shopping-basket me-1"></i>Qty: <span th:text="${item.quantity}"></span> × 
+                    $<span th:text="${#numbers.formatDecimal(item.unitPrice, 1, 2)}"></span>
+                  </small>
+                </div>
+                <strong class="text-primary ms-2" th:text="'$' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}"></strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="total-amount">
+            <div class="d-flex justify-content-between align-items-center">
+              <strong style="font-size: 1.3rem;">
+                <i class="fas fa-dollar-sign me-2"></i>Total Amount:
+              </strong>
+              <strong style="font-size: 2rem;" th:text="'$' + ${#numbers.formatDecimal(order.totalAmount, 1, 2)}"></strong>
+            </div>
+          </div>
+
+          <div class="shipping-info">
+            <h6 class="fw-bold mb-2" style="color: #667eea;">
+              <i class="fas fa-map-marker-alt me-2"></i>Shipping Address:
+            </h6>
+            <small class="text-muted" th:text="${order.shippingAddress}"></small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Form -->
+    <div class="col-lg-7">
+      <div class="payment-card">
+        <div class="card-header p-4">
+          <h5 class="mb-0" style="color: #667eea; font-size: 1.4rem;">
+            <i class="fas fa-wallet me-2"></i>Select Payment Method
+          </h5>
+        </div>
+        <div class="card-body p-4">
+          <form th:action="@{'/payment/process/' + ${order.id}}" method="post" id="paymentForm">
+
+            <!-- Payment Method Selection -->
+            <div class="row mb-4">
+              <div class="col-md-4 mb-3">
+                <div class="payment-method-card" onclick="selectPaymentMethod('CREDIT_CARD')" id="creditCardOption">
+                  <div class="payment-icon">💳</div>
+                  <h6 class="fw-bold mb-1">Credit Card</h6>
+                  <small>Visa, Master, Amex</small>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="payment-method-card" onclick="selectPaymentMethod('PAYPAL')" id="paypalOption">
+                  <div class="payment-icon">🔵</div>
+                  <h6 class="fw-bold mb-1">PayPal</h6>
+                  <small>Fast & Secure</small>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="payment-method-card" onclick="selectPaymentMethod('STRIPE')" id="stripeOption">
+                  <div class="payment-icon">💠</div>
+                  <h6 class="fw-bold mb-1">Stripe</h6>
+                  <small>Modern Payment</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hidden field for payment method -->
+            <input type="hidden" id="selectedPaymentMethod" name="paymentMethod" value="CREDIT_CARD">
+
+            <!-- Credit Card Form -->
+            <div id="creditCardForm" class="form-section">
+              <h6><i class="fas fa-credit-card"></i>Credit Card Details</h6>
+              <div class="row">
+                <div class="col-12">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="fas fa-hashtag me-1 text-primary"></i>Card Number *
+                    </label>
+                    <input type="text" class="form-control" name="cardNumber"
+                           placeholder="1234 5678 9012 3456" maxlength="19"
+                           oninput="formatCardNumber(this)" data-required="true" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="fas fa-calendar me-1 text-primary"></i>Expiry Date *
+                    </label>
+                    <input type="text" class="form-control" name="expiryDate"
+                           placeholder="MM/YY" maxlength="5"
+                           oninput="formatExpiryDate(this)" data-required="true" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="fas fa-lock me-1 text-primary"></i>CVV *
+                    </label>
+                    <input type="text" class="form-control" name="cvv"
+                           placeholder="123" maxlength="3" data-required="true" required>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="fas fa-user me-1 text-primary"></i>Cardholder Name *
+                    </label>
+                    <input type="text" class="form-control" name="cardHolder"
+                           placeholder="John Doe" data-required="true" required>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PayPal Form -->
+            <div id="paypalForm" class="form-section" style="display: none;">
+              <h6><i class="fab fa-paypal"></i>PayPal Login</h6>
+              <div class="mb-3">
+                <label class="form-label">
+                  <i class="fas fa-envelope me-1 text-primary"></i>PayPal Email *
+                </label>
+                <input type="email" class="form-control" name="email"
+                       placeholder="your-email@example.com"
+                       value="test@example.com" data-required="true">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">
+                  <i class="fas fa-key me-1 text-primary"></i>Password *
+                </label>
+                <input type="password" class="form-control" name="password"
+                       placeholder="Your PayPal password"
+                       value="password123" data-required="true">
+              </div>
+              <div class="info-badge">
+                <small>
+                  <i class="fas fa-info-circle me-1"></i>
+                  <strong>Test Mode:</strong> Use "fail@test.com" to simulate payment failure.
+                </small>
+              </div>
+            </div>
+
+            <!-- Stripe Form -->
+            <div id="stripeForm" class="form-section" style="display: none;">
+              <h6><i class="fab fa-stripe"></i>Stripe Payment</h6>
+              <div class="mb-3">
+                <label class="form-label">
+                  <i class="fas fa-ticket-alt me-1 text-primary"></i>Stripe Token *
+                </label>
+                <input type="text" class="form-control" name="stripeToken"
+                       placeholder="tok_123456789"
+                       value="tok_success" data-required="true">
+              </div>
+              <div class="info-badge">
+                <small>
+                  <i class="fas fa-info-circle me-1"></i>
+                  <strong>Test Mode:</strong> Use "tok_success" for successful payment or "tok_fail" for failure test.
+                </small>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-4">
+              <div class="d-grid gap-3">
+                <button type="submit" class="btn btn-pay" id="payButton">
+                  <i class="fas fa-shield-alt me-2"></i>
+                  Secure Payment - $<span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}"></span>
+                </button>
+                <a th:href="@{'/buyer/orders/' + ${order.id}}"
+                   class="btn btn-cancel">
+                  <i class="fas fa-arrow-left me-2"></i>Back to Order
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Security Notice -->
+      <div class="security-badge">
+        <i class="fas fa-shield-alt"></i>
+        <h6 class="fw-bold mb-2">256-Bit SSL Encryption</h6>
+        <p class="small mb-0">
+          Your payment information is encrypted and secure.
+          We never store your credit card details.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  let currentPaymentMethod = 'CREDIT_CARD';
+
+  // Select payment method
+  function selectPaymentMethod(method) {
+    console.log("Selected payment method:", method);
+    currentPaymentMethod = method;
+
+    // Update hidden field
+    document.getElementById('selectedPaymentMethod').value = method;
+
+    // Update UI
+    updatePaymentFormVisibility(method);
+    updateSelectedCard(method);
+  }
+
+  // Update form visibility based on selected method
+  function updatePaymentFormVisibility(method) {
+    console.log("Updating form visibility for method:", method);
+    
+    // Hide all forms and disable their inputs
+    const creditCardForm = document.getElementById('creditCardForm');
+    const paypalForm = document.getElementById('paypalForm');
+    const stripeForm = document.getElementById('stripeForm');
+    
+    creditCardForm.style.display = 'none';
+    paypalForm.style.display = 'none';
+    stripeForm.style.display = 'none';
+    
+    // Disable all form inputs
+    disableFormInputs(creditCardForm);
+    disableFormInputs(paypalForm);
+    disableFormInputs(stripeForm);
+
+    // Show selected form and enable its inputs
+    let formId = method.toLowerCase() + 'Form';
+    if (method === 'CREDIT_CARD') {
+      formId = 'creditCardForm';
+    }
+    
+    const selectedForm = document.getElementById(formId);
+    selectedForm.style.display = 'block';
+    enableFormInputs(selectedForm);
+    
+    console.log("Form visibility updated. Active form:", formId);
+  }
+  
+  // Disable all inputs in a form
+  function disableFormInputs(form) {
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+      input.disabled = true;
+      input.removeAttribute('required');
+    });
+  }
+  
+  // Enable all inputs in a form
+  function enableFormInputs(form) {
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+      input.disabled = false;
+      // Re-add required attribute if it was originally required
+      if (input.dataset.required === 'true') {
+        input.setAttribute('required', 'required');
+      }
+    });
+  }
+
+  // Update selected card styling
+  function updateSelectedCard(method) {
+    // Remove selected class from all cards
+    document.getElementById('creditCardOption').classList.remove('selected');
+    document.getElementById('paypalOption').classList.remove('selected');
+    document.getElementById('stripeOption').classList.remove('selected');
+
+    // Add selected class to chosen card
+    document.getElementById(method.toLowerCase() + 'Option').classList.add('selected');
+  }
+
+  // Format card number
+  function formatCardNumber(input) {
+    let value = input.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    let matches = value.match(/\d{4,16}/g);
+    let match = matches && matches[0] || '';
+    let parts = [];
+
+    for (let i = 0; i < match.length; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+
+    if (parts.length) {
+      input.value = parts.join(' ');
+    } else {
+      input.value = value;
+    }
+  }
+
+  // Format expiry date with validation
+  function formatExpiryDate(input) {
+    let value = input.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    
+    // Limit to 4 digits (MMYY)
+    value = value.substring(0, 4);
+    
+    if (value.length >= 2) {
+      let month = value.substring(0, 2);
+      let year = value.substring(2, 4);
+      
+      // Validate month (01-12)
+      if (parseInt(month) > 12) {
+        month = '12';
+      }
+      if (parseInt(month) === 0) {
+        month = '01';
+      }
+      
+      // Format as MM/YY
+      input.value = month + (year ? '/' + year : '');
+    } else {
+      input.value = value;
+    }
+  }
+  
+  // Validate expiry date
+  function validateExpiryDate(expiryDate) {
+    if (!expiryDate || expiryDate.length !== 5) {
+      return false;
+    }
+    
+    const parts = expiryDate.split('/');
+    if (parts.length !== 2) {
+      return false;
+    }
+    
+    const month = parseInt(parts[0]);
+    const year = parseInt('20' + parts[1]);
+    
+    // Validate month
+    if (month < 1 || month > 12) {
+      return false;
+    }
+    
+    // Check if card is expired
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    
+    if (year < currentYear || (year === currentYear && month < currentMonth)) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  // Initialize page
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log("Payment page loaded - initializing...");
+
+    // Set default payment method (Credit Card)
+    selectPaymentMethod('CREDIT_CARD');
+
+    console.log("Payment form initialized");
+    console.log("Order ID:", document.querySelector('form').action.split('/').pop());
+  });
+
+  // Form submission handler with validation
+  document.getElementById('paymentForm').addEventListener('submit', function(e) {
+    console.log("=== FORM SUBMISSION STARTED ===");
+    
+    const payButton = document.getElementById('payButton');
+    const paymentMethod = document.getElementById('selectedPaymentMethod').value;
+
+    console.log("Payment Method:", paymentMethod);
+    console.log("Form Action:", this.action);
+
+    // Validate based on payment method
+    if (paymentMethod === 'CREDIT_CARD') {
+      const expiryDate = this.querySelector('input[name="expiryDate"]');
+      if (expiryDate && expiryDate.value) {
+        if (!validateExpiryDate(expiryDate.value)) {
+          e.preventDefault();
+          alert('Invalid expiry date. Please enter a valid future date in MM/YY format.');
+          payButton.disabled = false;
+          return false;
+        }
+      }
+    }
+
+    // Show loading state
+    payButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...';
+    payButton.disabled = true;
+
+    // Log form data for debugging
+    const formData = new FormData(this);
+    console.log("Form Data to be submitted:");
+    for (let [key, value] of formData.entries()) {
+      console.log(`  ${key}: ${value}`);
+    }
+
+    console.log("Submitting form to:", this.action);
+    // Let the form submit normally
+  });
+
+  // Add click handler to pay button as backup
+  document.getElementById('payButton').addEventListener('click', function(e) {
+    console.log("Pay button clicked directly");
+    // This is just for logging - the form submit handler above should handle the actual submission
+  });
+</script>
+</body>
+</html>

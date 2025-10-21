@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Login - MusicStore</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+      url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+
+    .login-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      overflow: hidden;
+    }
+
+    .login-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .music-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .login-option {
+      border: 2px solid #e9ecef;
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      margin: 10px 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .login-option:hover {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+    }
+
+    .login-option.active {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .login-option.active h5,
+    .login-option.active p,
+    .login-option.active small {
+      color: white !important;
+    }
+
+    .login-option h5 {
+      margin-bottom: 10px;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .login-option p {
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .login-option small {
+      color: #888;
+    }
+
+    .form-control {
+      border-radius: 10px;
+      padding: 12px 15px;
+      border: 2px solid #e9ecef;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .btn-login {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .admin-link {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .admin-link:hover {
+      color: #764ba2;
+    }
+
+    .floating-music {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0.1;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-music:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+    .floating-music:nth-child(2) { top: 20%; right: 10%; animation-delay: 1s; }
+    .floating-music:nth-child(3) { bottom: 30%; left: 15%; animation-delay: 2s; }
+    .floating-music:nth-child(4) { bottom: 15%; right: 5%; animation-delay: 3s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(10deg); }
+    }
+
+    .feature-highlight {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+<!-- Floating Music Icons -->
+<div class="floating-music">🎸</div>
+<div class="floating-music">🎹</div>
+<div class="floating-music">🥁</div>
+<div class="floating-music">🎺</div>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-12 col-lg-10">
+      <div class="login-container">
+        <!-- Header Section -->
+        <div class="login-header">
+          <span class="music-icon">🎵</span>
+          <h2>Welcome to MusicStore</h2>
+          <p class="mb-0">Your journey to musical excellence begins here</p>
+        </div>
+
+        <div class="p-4 p-md-5">
+          <!-- Error Messages -->
+          <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <th:block th:if="${param.error == 'invalid_credentials'}">
+              ❌ Invalid email or password. Please try again.
+            </th:block>
+            <th:block th:if="${param.error == 'invalid_role'}">
+              ❌ Invalid user role selected.
+            </th:block>
+            <th:block th:if="${param.error == 'invalid_admin'}">
+              ❌ Invalid admin password.
+            </th:block>
+            <th:block th:if="${param.error == 'access_denied'}">
+              ❌ Please login to access this page.
+            </th:block>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+
+          <!-- Success Messages -->
+          <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <th:block th:if="${param.success == 'registered'}">
+              ✅ Registration successful! Please login below.
+            </th:block>
+            <th:block th:if="${param.success == 'logged_out'}">
+              👋 You have been logged out successfully.
+            </th:block>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+
+          <div class="text-center mb-4">
+            <h3 class="feature-highlight">Choose Your Musical Path</h3>
+            <p class="text-muted">Select how you'd like to experience our musical world</p>
+          </div>
+
+          <!-- Role Selection -->
+          <div class="row">
+            <div class="col-md-4">
+              <div class="login-option" id="buyerOption" onclick="selectRole('BUYER')">
+                <h5>🎵 Music Enthusiast</h5>
+                <p>Discover and purchase instruments</p>
+                <small>Perfect for musicians and collectors</small>
+                <div class="mt-3">
+                  <span class="badge bg-primary">Browse</span>
+                  <span class="badge bg-success">Purchase</span>
+                  <span class="badge bg-info">Explore</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="login-option" id="sellerOption" onclick="selectRole('SELLER')">
+                <h5>🏪 Instrument Maestro</h5>
+                <p>Showcase and sell your instruments</p>
+                <small>Ideal for shops and individual sellers</small>
+                <div class="mt-3">
+                  <span class="badge bg-warning">List</span>
+                  <span class="badge bg-danger">Sell</span>
+                  <span class="badge bg-secondary">Manage</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="login-option" id="stockManagerOption" onclick="selectRole('STOCK_MANAGER')">
+                <h5>📦 Stock Manager</h5>
+                <p>Monitor and manage inventory levels</p>
+                <small>Inventory control specialist</small>
+                <div class="mt-3">
+                  <span class="badge bg-info">Monitor</span>
+                  <span class="badge bg-warning">Alert</span>
+                  <span class="badge bg-success">Manage</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Admin Access -->
+          <div class="text-center mt-4">
+            <a href="#" class="admin-link" data-bs-toggle="modal" data-bs-target="#adminModal">
+              🔒 Administrator Access - System Management
+            </a>
+          </div>
+
+          <!-- Login Form (hidden by default) -->
+          <div id="loginForm" style="display: none;" class="mt-5">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-transparent border-0">
+                <h4 id="loginTitle" class="text-center feature-highlight">Login to Your Account</h4>
+                <p class="text-center text-muted mb-0" id="loginDescription">Access your personalized dashboard</p>
+              </div>
+              <div class="card-body">
+                <form th:action="@{/login}" method="post">
+                  <input type="hidden" id="selectedRole" name="role" value="">
+
+                  <div class="mb-4">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-control" name="email" required
+                           placeholder="Enter your email address">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" name="password" required
+                           placeholder="Enter your password">
+                  </div>
+
+                  <button type="submit" class="btn btn-login w-100" id="loginButton">
+                    <span id="loginButtonText">Login</span>
+                  </button>
+                </form>
+
+                <div class="text-center mt-4">
+                  <p class="text-muted">New to MusicStore?
+                    <a th:href="@{/register}" class="feature-highlight text-decoration-none">Create your account</a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Login Modal -->
+<div class="modal fade" id="adminModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">🔒 Administrator Portal</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted mb-4">Access the system administration panel for full control over users, products, and settings.</p>
+        <form th:action="@{/admin/login}" method="post">
+          <div class="mb-3">
+            <label class="form-label">Admin Password</label>
+            <input type="password" class="form-control" name="adminKey"
+                   placeholder="Enter administrator password" required>
+          </div>
+          <button type="submit" class="btn btn-dark w-100">Access Admin Panel</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function selectRole(role) {
+    // Update hidden field
+    document.getElementById('selectedRole').value = role;
+
+    // Update UI
+    document.getElementById('loginForm').style.display = 'block';
+
+    // Set appropriate titles and descriptions based on role
+    const roleTitles = {
+      'BUYER': 'Music Enthusiast Login',
+      'SELLER': 'Instrument Seller Login',
+      'STOCK_MANAGER': 'Stock Manager Login'
+    };
+
+    const roleDescriptions = {
+      'BUYER': 'Access your personal music collection and shopping cart',
+      'SELLER': 'Manage your instrument listings and sales',
+      'STOCK_MANAGER': 'Monitor and manage inventory across the system'
+    };
+
+    document.getElementById('loginTitle').textContent = roleTitles[role] || role + ' Login';
+    document.getElementById('loginDescription').textContent = roleDescriptions[role] || 'Access your personalized dashboard';
+    document.getElementById('loginButtonText').textContent = 'Login as ' + role;
+
+    // Highlight selected option
+    document.getElementById('buyerOption').classList.remove('active');
+    document.getElementById('sellerOption').classList.remove('active');
+    document.getElementById('stockManagerOption').classList.remove('active');
+    document.getElementById(role.toLowerCase() + 'Option').classList.add('active');
+
+    // Scroll to form smoothly
+    document.getElementById('loginForm').scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+  }
+
+  // Add some interactive effects
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add loading animation to buttons
+    const buttons = document.querySelectorAll('.btn');
+    buttons.forEach(button => {
+      button.addEventListener('click', function() {
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 150);
+      });
+    });
+
+    // Auto-dismiss alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+      setTimeout(() => {
+        if (alert.classList.contains('show')) {
+          const bsAlert = new bootstrap.Alert(alert);
+          bsAlert.close();
+        }
+      }, 5000);
+    });
+  });
+</script>
+</body>
+</html>

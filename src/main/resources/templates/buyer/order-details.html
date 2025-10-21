@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Order Details - MusicStore</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding-bottom: 50px;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .page-header {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      animation: slideDown 0.5s ease;
+    }
+
+    .order-items-card, .summary-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      border: none;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .order-item {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+      border: 2px solid #e8ecff;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+      padding: 1.5rem;
+    }
+
+    .order-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+    }
+
+    .product-image {
+      border-radius: 12px;
+      height: 100px;
+      width: 100px;
+      object-fit: cover;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .product-placeholder {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      height: 100px;
+      width: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .summary-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.2rem;
+      border-radius: 15px 15px 0 0;
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+
+    .status-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 1rem;
+      display: inline-block;
+    }
+
+    .payment-status-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-block;
+    }
+
+    .btn-pay-now {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      border: none;
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(56, 239, 125, 0.3);
+      color: white;
+    }
+
+    .btn-pay-now:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(56, 239, 125, 0.5);
+      color: white;
+    }
+
+    .btn-pay-now i {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    .btn-back {
+      background: white;
+      border: 2px solid #667eea;
+      color: #667eea;
+      padding: 0.8rem;
+      font-weight: 600;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .btn-cancel {
+      background: white;
+      border: 2px solid #f5576c;
+      color: #f5576c;
+      padding: 0.8rem;
+      font-weight: 600;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      border-color: #f5576c;
+      transform: translateY(-2px);
+    }
+
+    .info-row {
+      padding: 0.8rem 0;
+      border-bottom: 1px dashed #e8ecff;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .alert {
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      animation: slideDown 0.5s ease;
+    }
+
+    .card-header {
+      border-bottom: 3px solid #667eea;
+      background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" th:href="@{/}">🎵 MusicStore</a>
+    <div class="navbar-nav ms-auto">
+      <span class="navbar-text text-white">Welcome, <span th:text="${user.name}">Buyer</span></span>
+      <a class="nav-link text-white" th:href="@{/buyer/dashboard}">Dashboard</a>
+      <a class="nav-link text-white" th:href="@{/buyer/products}">Browse</a>
+      <a class="nav-link text-white" th:href="@{/buyer/cart}">Cart</a>
+      <a class="nav-link text-white active" th:href="@{/buyer/orders}">Orders</a>
+      <a class="nav-link text-white" th:href="@{/buyer/profile}">Profile</a>
+      <a class="nav-link text-white" th:href="@{/logout}">Logout</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="page-header text-white">
+        <h2><i class="fas fa-receipt me-3"></i>Order Details</h2>
+        <p class="mb-0" style="font-size: 1.1rem;">Order #<span th:text="${order.id}"></span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+    <th:block th:if="${param.success == 'order_created'}">
+      ✅ Order placed successfully!
+    </th:block>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <!-- Order Information -->
+  <div class="row">
+    <div class="col-lg-8">
+      <!-- Order Items -->
+      <div class="order-items-card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-box me-2"></i>Order Items</h5>
+        </div>
+        <div class="card-body p-4">
+          <div th:each="orderItem : ${order.orderItems}" class="order-item">
+            <div class="row align-items-center">
+              <div class="col-md-2 mb-3 mb-md-0">
+                <img th:if="${orderItem.product.imageUrl}"
+                     th:src="${orderItem.product.imageUrl}"
+                     class="product-image"
+                     alt="Product Image">
+                <div th:unless="${orderItem.product.imageUrl}"
+                     class="product-placeholder">
+                  <i class="fas fa-music text-white fa-2x"></i>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3 mb-md-0">
+                <h6 class="fw-bold" th:text="${orderItem.product.name}"></h6>
+                <div class="text-muted small">
+                  <i class="fas fa-tag me-1"></i><span th:text="${orderItem.product.brand}"></span>
+                </div>
+                <div class="text-muted small">
+                  <i class="fas fa-user me-1"></i>Seller: <span th:text="${orderItem.product.seller.name}"></span>
+                </div>
+              </div>
+              <div class="col-md-2 col-6 text-center">
+                <div class="text-muted small">Unit Price</div>
+                <strong class="text-primary" th:text="'$' + ${#numbers.formatDecimal(orderItem.unitPrice, 1, 2)}"></strong>
+              </div>
+              <div class="col-md-2 col-6 text-center">
+                <div class="text-muted small">Quantity</div>
+                <strong th:text="${orderItem.quantity}"></strong>
+              </div>
+              <div class="col-md-2 text-center">
+                <div class="text-muted small">Total</div>
+                <strong class="text-success" th:text="'$' + ${#numbers.formatDecimal(orderItem.totalPrice, 1, 2)}"></strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <!-- Order Summary -->
+      <div class="summary-card mb-4">
+        <div class="summary-header">
+          <i class="fas fa-file-invoice-dollar me-2"></i>Order Summary
+        </div>
+        <div class="card-body p-4">
+          <div class="info-row">
+            <strong><i class="fas fa-info-circle me-2 text-primary"></i>Order Status:</strong><br>
+            <div class="mt-2">
+              <th:block th:switch="${order.status}">
+                <span th:case="'PENDING'" class="status-badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>PENDING</span>
+                <span th:case="'CONFIRMED'" class="status-badge bg-info text-white"><i class="fas fa-check-circle me-1"></i>CONFIRMED</span>
+                <span th:case="'SHIPPED'" class="status-badge bg-primary text-white"><i class="fas fa-shipping-fast me-1"></i>SHIPPED</span>
+                <span th:case="'DELIVERED'" class="status-badge bg-success text-white"><i class="fas fa-box-open me-1"></i>DELIVERED</span>
+                <span th:case="'CANCELLED'" class="status-badge bg-danger text-white"><i class="fas fa-times-circle me-1"></i>CANCELLED</span>
+              </th:block>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <strong><i class="fas fa-credit-card me-2 text-success"></i>Payment Status:</strong><br>
+            <div class="mt-2">
+              <th:block th:switch="${order.paymentStatus}">
+                <span th:case="'PENDING'" class="payment-status-badge bg-warning text-dark"><i class="fas fa-exclamation-circle me-1"></i>PENDING</span>
+                <span th:case="'COMPLETED'" class="payment-status-badge bg-success text-white"><i class="fas fa-check-circle me-1"></i>PAID</span>
+                <span th:case="'FAILED'" class="payment-status-badge bg-danger text-white"><i class="fas fa-times-circle me-1"></i>FAILED</span>
+                <span th:case="'REFUNDED'" class="payment-status-badge bg-info text-white"><i class="fas fa-undo me-1"></i>REFUNDED</span>
+              </th:block>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <strong><i class="fas fa-calendar me-2 text-info"></i>Order Date:</strong><br>
+            <span class="text-muted" th:text="${#temporals.format(order.orderDate, 'MMM dd, yyyy HH:mm')}"></span>
+          </div>
+
+          <div class="info-row" th:if="${order.deliveryDate}">
+            <strong><i class="fas fa-truck me-2 text-success"></i>Delivery Date:</strong><br>
+            <span class="text-muted" th:text="${#temporals.format(order.deliveryDate, 'MMM dd, yyyy HH:mm')}"></span>
+          </div>
+
+          <div class="info-row">
+            <strong><i class="fas fa-map-marker-alt me-2 text-danger"></i>Shipping Address:</strong><br>
+            <span class="text-muted" th:text="${order.shippingAddress}"></span>
+          </div>
+
+          <div class="info-row" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1rem; border-radius: 10px; margin-top: 1rem;">
+            <div class="d-flex justify-content-between align-items-center text-white">
+              <strong style="font-size: 1.2rem;"><i class="fas fa-dollar-sign me-2"></i>Total Amount:</strong>
+              <strong style="font-size: 1.8rem;" th:text="'$' + ${#numbers.formatDecimal(order.totalAmount, 1, 2)}"></strong>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2 mt-4">
+            <!-- Pay Now Button - Only show if payment is PENDING -->
+            <a th:if="${order.paymentStatus == 'PENDING'}"
+               th:href="@{'/payment/order/' + ${order.id}}"
+               class="btn btn-pay-now w-100">
+              <i class="fas fa-lock me-2"></i>Pay Now
+            </a>
+
+            <!-- Already Paid Message -->
+            <div th:if="${order.paymentStatus == 'COMPLETED'}" 
+                 class="alert alert-success mb-0" style="border-radius: 10px;">
+              <i class="fas fa-check-circle me-2"></i>This order has been paid successfully!
+            </div>
+
+            <a th:href="@{/buyer/orders}" class="btn btn-back w-100">
+              <i class="fas fa-arrow-left me-2"></i>Back to Orders
+            </a>
+
+            <a th:if="${order.status == 'PENDING'}"
+               th:href="@{'/buyer/orders/cancel/' + ${order.id}}"
+               class="btn btn-cancel w-100"
+               onclick="return confirm('Are you sure you want to cancel this order?');">
+              <i class="fas fa-times me-2"></i>Cancel Order
+            </a>
+          </div>
+
+          <!-- Payment Security Info -->
+          <div class="mt-4 p-3" style="background: #f8f9ff; border-radius: 10px; border-left: 4px solid #667eea;">
+            <div class="d-flex align-items-start">
+              <i class="fas fa-shield-alt text-primary me-2" style="font-size: 1.5rem;"></i>
+              <div>
+                <strong style="color: #2d3748;">Secure Payment</strong>
+                <p class="mb-0 small text-muted">Your payment information is encrypted and protected</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

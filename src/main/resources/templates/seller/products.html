@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Products - MusicStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">🎵 MusicStore</a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-warning">Welcome, <span th:text="${user.name}">Seller</span></span>
+            <a class="nav-link" th:href="@{/seller/dashboard}">Dashboard</a>
+            <a class="nav-link active" th:href="@{/seller/products}">My Products</a>
+            <a class="nav-link" th:href="@{/seller/profile}">My Profile</a>
+            <a class="nav-link" th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>📦 My Products</h2>
+            <p class="text-muted">Manage your musical instrument inventory</p>
+        </div>
+        <a th:href="@{/seller/products/new}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Add New Product
+        </a>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+        <th:block th:if="${param.success[0] == 'product_created'}">
+            ✅ Product created successfully!
+        </th:block>
+        <th:block th:if="${param.success[0] == 'product_updated'}">
+            ✅ Product updated successfully!
+        </th:block>
+        <th:block th:if="${param.success[0] == 'product_deleted'}">
+            ✅ Product deleted successfully!
+        </th:block>
+        <th:block th:if="${param.success[0] == 'stock_updated'}">
+            ✅ Stock quantity updated successfully!
+        </th:block>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show">
+        <th:block th:if="${param.error[0] == 'product_exists'}">
+            ❌ A product with this name already exists!
+        </th:block>
+        <th:block th:if="${param.error[0] == 'product_not_found'}">
+            ❌ Product not found!
+        </th:block>
+        <th:block th:if="${param.error[0] == 'access_denied'}">
+            ❌ Access denied!
+        </th:block>
+        <th:block th:if="${param.error[0] == 'product_has_orders'}">
+            ❌ Cannot delete this product! It has existing orders. Products with order history cannot be deleted.
+        </th:block>
+        <th:block th:if="${param.error[0] == 'delete_failed'}">
+            ❌ Failed to delete product. Please try again.
+        </th:block>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body text-center">
+                    <h5>📦 Total Products</h5>
+                    <h3 th:text="${totalProducts != null ? totalProducts : 0}">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-warning">
+                <div class="card-body text-center">
+                    <h5>⚠️ Low Stock</h5>
+                    <h3 th:text="${lowStockCount != null ? lowStockCount : 0}">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body text-center">
+                    <h5>💰 Stock Value</h5>
+                    <h3 th:text="'$' + ${#numbers.formatDecimal(totalStockValue != null ? totalStockValue : 0, 1, 2)}">$0.00</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-list"></i> Product Inventory
+                <span class="badge bg-secondary" th:text="${products != null ? products.size() : 0} + ' items'">0 items</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Image</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Brand</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="product : ${products}" th:class="${product.lowStock} ? 'table-warning' : ''">
+                        <td>
+                            <img th:if="${product.imageUrl}"
+                                 th:src="${product.imageUrl}"
+                                 style="width: 50px; height: 50px; object-fit: cover;"
+                                 class="rounded"
+                                 alt="Product Image">
+                            <div th:unless="${product.imageUrl}"
+                                 class="bg-secondary text-white rounded d-flex align-items-center justify-content-center"
+                                 style="width: 50px; height: 50px;">
+                                <i class="fas fa-image"></i>
+                            </div>
+                        </td>
+                        <td>
+                            <strong th:text="${product.name}">Product Name</strong>
+                            <br>
+                            <small class="text-muted"
+                                   th:text="${product.description != null ? (product.description.length() > 50 ? product.description.substring(0,50) + '...' : product.description) : 'No description'}">
+                                Product description
+                            </small>
+                        </td>
+                        <td>
+                            <span class="badge bg-info" th:text="${product.category}">Category</span>
+                        </td>
+                        <td th:text="${product.brand}">Brand</td>
+                        <td>
+                            <strong th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0.00</strong>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                    <span th:text="${product.stockQuantity}"
+                                          th:class="${product.lowStock} ? 'text-danger fw-bold' : 'text-success fw-bold'">
+                                        0
+                                    </span>
+                                <small class="text-muted ms-1">/ <span th:text="${product.minStockLevel}">10</span> min</small>
+                            </div>
+                            <!-- Quick Stock Update Form -->
+                            <form th:action="@{/seller/products/update-stock}" method="post" class="mt-1">
+                                <input type="hidden" name="productId" th:value="${product.id}">
+                                <div class="input-group input-group-sm">
+                                    <input type="number" name="newQuantity" class="form-control"
+                                           th:value="${product.stockQuantity}" min="0" style="width: 80px;">
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-sync"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <th:block th:if="${product.stockQuantity == 0}">
+                                <span class="badge bg-danger">Out of Stock</span>
+                            </th:block>
+                            <th:block th:if="${product.lowStock and product.stockQuantity > 0}">
+                                <span class="badge bg-warning">Low Stock</span>
+                            </th:block>
+                            <th:block th:if="${!product.lowStock and product.stockQuantity > 0}">
+                                <span class="badge bg-success">In Stock</span>
+                            </th:block>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a th:href="@{'/seller/products/edit/' + ${product.id}}"
+                                   class="btn btn-outline-primary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a th:href="@{'/seller/products/delete/' + ${product.id}}"
+                                   class="btn btn-outline-danger delete-btn"
+                                   th:data-productname="${product.name}"
+                                   title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${products == null or products.size() == 0}">
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="fas fa-box-open fa-3x mb-3"></i>
+                            <h5>No products found</h5>
+                            <p>Start by adding your first musical instrument to sell!</p>
+                            <a th:href="@{/seller/products/new}" class="btn btn-success">
+                                <i class="fas fa-plus"></i> Add Your First Product
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Stock Alert Section -->
+    <div th:if="${lowStockCount > 0}" class="card border-warning mt-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="fas fa-exclamation-triangle"></i> Low Stock Alerts
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <strong>Attention!</strong> You have <span th:text="${lowStockCount}">0</span> product(s) with low stock levels.
+                Consider restocking these items to avoid running out.
+            </div>
+            <div class="row">
+                <div th:each="product : ${products}" th:if="${product.lowStock}" class="col-md-6 mb-2">
+                    <div class="card border-warning">
+                        <div class="card-body py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong th:text="${product.name}">Product Name</strong>
+                                    <small class="text-muted d-block" th:text="${product.brand}">Brand</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-warning" th:text="${product.stockQuantity} + ' left'">0 left</span>
+                                    <br>
+                                    <small class="text-muted">Min: <span th:text="${product.minStockLevel}">10</span></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Delete confirmation
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                const productName = this.getAttribute('data-productname');
+                const confirmed = confirm('Are you sure you want to delete "' + productName + '"? This action cannot be undone.');
+
+                if (!confirmed) {
+                    event.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add New User - MusicStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">🎵 MusicStore</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
+            <a class="nav-link" th:href="@{/admin/users}">Manage Users</a>
+            <span class="navbar-text text-warning">Administrator</span>
+            <a class="nav-link" th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-plus"></i> Add New User
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Success/Error Messages -->
+                    <div th:if="${param.success}" class="alert alert-success">
+                        ✅ User created successfully!
+                    </div>
+
+                    <div th:if="${param.error}" class="alert alert-danger">
+                        <th:block th:if="${param.error[0] == 'email_exists'}">
+                            ❌ Email already exists! Please use a different email.
+                        </th:block>
+                    </div>
+
+                    <form th:action="@{/admin/users/create}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" class="form-control" name="name" required
+                                   placeholder="Enter user's full name">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email Address *</label>
+                            <input type="email" class="form-control" name="email" required
+                                   placeholder="Enter user's email address">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Password *</label>
+                            <input type="password" class="form-control" name="password" required
+                                   placeholder="Set a password for the user">
+                            <div class="form-text">Make sure to use a strong password.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Role *</label>
+                            <select class="form-control" name="role" required>
+                                <option value="">Select a role...</option>
+                                <option value="BUYER">🎵 Buyer - Can purchase instruments</option>
+                                <option value="SELLER">🏪 Seller - Can list and sell instruments</option>
+                                <option value="STOCK_MANAGER">📦 Stock Manager - Can manage inventory system-wide</option>
+                                <option value="ADMIN">🔧 Admin - Full system access</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" name="phone"
+                                   placeholder="Enter user's phone number">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <textarea class="form-control" name="address" rows="3"
+                                      placeholder="Enter user's address"></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a th:href="@{/admin/users}" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-success">Create User</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Quick Help -->
+            <div class="card mt-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">💡 User Role Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h6>🎵 Buyer</h6>
+                            <p class="small text-muted">Can browse and purchase musical instruments. Has access to shopping cart and order history.</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h6>🏪 Seller</h6>
+                            <p class="small text-muted">Can list musical instruments for sale, manage inventory, and view sales reports.</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h6>📦 Stock Manager</h6>
+                            <p class="small text-muted">Can monitor and manage inventory across ALL sellers, view stock reports, and handle low stock alerts.</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h6>🔧 Admin</h6>
+                            <p class="small text-muted">Full system access including user management, system settings, and all administrative functions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
