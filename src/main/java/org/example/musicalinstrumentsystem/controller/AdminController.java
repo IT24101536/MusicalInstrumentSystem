@@ -310,11 +310,11 @@ public class AdminController {
                     currentUser
             );
 
-            System.out.println("✅ Report saved successfully");
+            System.out.println(" Report saved successfully");
             return "redirect:/admin/reports/saved?success=report_saved";
 
         } catch (Exception e) {
-            System.out.println("❌ Error saving report: " + e.getMessage());
+            System.out.println(" Error saving report: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/reports?error=save_failed";
         }
@@ -380,7 +380,7 @@ public class AdminController {
             financialReportService.updateReport(id, reportName, notes);
             return "redirect:/admin/reports/view/" + id + "?success=report_updated";
         } catch (Exception e) {
-            System.out.println("❌ Error updating report: " + e.getMessage());
+            System.out.println(" Error updating report: " + e.getMessage());
             return "redirect:/admin/reports/view/" + id + "?error=update_failed";
         }
     }
@@ -402,7 +402,7 @@ public class AdminController {
                 return "redirect:/admin/reports/saved?error=report_not_found";
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting report: " + e.getMessage());
+            System.out.println(" Error deleting report: " + e.getMessage());
             return "redirect:/admin/reports/saved?error=delete_failed";
         }
     }
@@ -506,11 +506,11 @@ public class AdminController {
             }
 
             orderService.updateOrder(order);
-            System.out.println("✅ Order status updated: " + oldStatus + " -> " + status);
+            System.out.println(" Order status updated: " + oldStatus + " -> " + status);
 
             return "redirect:/admin/orders?success=status_updated";
         } catch (Exception e) {
-            System.out.println("❌ Error updating order status: " + e.getMessage());
+            System.out.println(" Error updating order status: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/orders?error=update_failed";
         }
@@ -548,7 +548,7 @@ public class AdminController {
         try {
             Optional<Order> orderOpt = orderService.getOrderById(id);
             if (orderOpt.isEmpty()) {
-                System.out.println("❌ Order not found: " + id);
+                System.out.println(" Order not found: " + id);
                 return "redirect:/admin/orders?error=order_not_found";
             }
 
@@ -558,8 +558,8 @@ public class AdminController {
 
 
             if (!"CONFIRMED".equals(orderStatus) && !"DELIVERED".equals(orderStatus) && !"CANCELLED".equals(orderStatus)) {
-                System.out.println("❌ Cannot delete order with status: " + orderStatus);
-                System.out.println("⚠️ Only CONFIRMED, DELIVERED, or CANCELLED orders can be deleted");
+                System.out.println(" Cannot delete order with status: " + orderStatus);
+                System.out.println("️ Only CONFIRMED, DELIVERED, or CANCELLED orders can be deleted");
                 return "redirect:/admin/orders?error=cannot_delete_active";
             }
 
@@ -567,17 +567,17 @@ public class AdminController {
             boolean deleted = orderService.deleteOrder(id);
             
             if (deleted) {
-                System.out.println("✅ Order deleted successfully: " + id);
+                System.out.println(" Order deleted successfully: " + id);
                 System.out.println("   Order Status: " + orderStatus);
                 System.out.println("   Order Amount: $" + orderAmount);
                 return "redirect:/admin/orders?success=order_deleted";
             } else {
-                System.out.println("❌ Failed to delete order: " + id);
+                System.out.println(" Failed to delete order: " + id);
                 return "redirect:/admin/orders?error=delete_failed";
             }
 
         } catch (Exception e) {
-            System.out.println("❌ Error deleting order: " + e.getMessage());
+            System.out.println(" Error deleting order: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/orders?error=delete_failed";
         }
@@ -632,11 +632,11 @@ public class AdminController {
             newUser.setAddress(address);
 
             userService.createUser(newUser);
-            System.out.println("✅ User created successfully");
+            System.out.println(" User created successfully");
 
             return "redirect:/admin/users?success=user_created";
         } catch (Exception e) {
-            System.out.println("❌ Error creating user: " + e.getMessage());
+            System.out.println(" Error creating user: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/users/new?error=create_failed";
         }
@@ -702,11 +702,11 @@ public class AdminController {
             existingUser.setAddress(address);
 
             userService.updateUser(existingUser);
-            System.out.println("✅ User updated successfully");
+            System.out.println(" User updated successfully");
 
             return "redirect:/admin/users?success=user_updated";
         } catch (Exception e) {
-            System.out.println("❌ Error updating user: " + e.getMessage());
+            System.out.println(" Error updating user: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/users/edit/" + id + "?error=update_failed";
         }
@@ -726,7 +726,7 @@ public class AdminController {
             
             // Prevent admin from deleting themselves
             if (currentUser.getId().equals(id)) {
-                System.out.println("❌ Cannot delete yourself");
+                System.out.println(" Cannot delete yourself");
                 return "redirect:/admin/users?error=cannot_delete_self";
             }
 
@@ -736,11 +736,11 @@ public class AdminController {
             }
 
             userService.deleteUser(id);
-            System.out.println("✅ User deleted successfully");
+            System.out.println(" User deleted successfully");
 
             return "redirect:/admin/users?success=user_deleted";
         } catch (Exception e) {
-            System.out.println("❌ Error deleting user: " + e.getMessage());
+            System.out.println(" Error deleting user: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/users?error=delete_failed";
         }
@@ -772,7 +772,7 @@ public class AdminController {
 
             return "redirect:/admin/reports/view/" + reportId + "?success=comment_added";
         } catch (Exception e) {
-            System.out.println("❌ Error adding comment: " + e.getMessage());
+            System.out.println(" Error adding comment: " + e.getMessage());
             return "redirect:/admin/reports/view/" + reportId + "?error=comment_failed";
         }
     }
@@ -812,7 +812,7 @@ public class AdminController {
             reportCommentService.updateComment(commentId, commentText);
             return "redirect:/admin/reports/view/" + reportId + "?success=comment_updated";
         } catch (Exception e) {
-            System.out.println("❌ Error updating comment: " + e.getMessage());
+            System.out.println(" Error updating comment: " + e.getMessage());
             return "redirect:/admin/reports/view/" + reportId + "?error=update_failed";
         }
     }
@@ -837,7 +837,7 @@ public class AdminController {
                 return "redirect:/admin/reports/view/" + reportId + "?error=comment_not_found";
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting comment: " + e.getMessage());
+            System.out.println(" Error deleting comment: " + e.getMessage());
             return "redirect:/admin/reports/view/" + reportId + "?error=delete_failed";
         }
     }
@@ -869,7 +869,7 @@ public class AdminController {
 
             return "redirect:/admin/reports/schedules?success=schedule_created";
         } catch (Exception e) {
-            System.out.println("❌ Error creating schedule: " + e.getMessage());
+            System.out.println(" Error creating schedule: " + e.getMessage());
             return "redirect:/admin/reports/schedules?error=create_failed";
         }
     }
@@ -941,7 +941,7 @@ public class AdminController {
 
             return "redirect:/admin/reports/schedules?success=schedule_updated";
         } catch (Exception e) {
-            System.out.println("❌ Error updating schedule: " + e.getMessage());
+            System.out.println(" Error updating schedule: " + e.getMessage());
             return "redirect:/admin/reports/schedules?error=update_failed";
         }
     }
@@ -959,7 +959,7 @@ public class AdminController {
             reportScheduleService.toggleScheduleStatus(id);
             return "redirect:/admin/reports/schedules?success=status_toggled";
         } catch (Exception e) {
-            System.out.println("❌ Error toggling schedule: " + e.getMessage());
+            System.out.println(" Error toggling schedule: " + e.getMessage());
             return "redirect:/admin/reports/schedules?error=toggle_failed";
         }
     }
@@ -981,7 +981,7 @@ public class AdminController {
                 return "redirect:/admin/reports/schedules?error=schedule_not_found";
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting schedule: " + e.getMessage());
+            System.out.println(" Error deleting schedule: " + e.getMessage());
             return "redirect:/admin/reports/schedules?error=delete_failed";
         }
     }
@@ -1006,7 +1006,7 @@ public class AdminController {
 
             return "admin/financial-records";
         } catch (Exception e) {
-            System.out.println("❌ Error loading financial records: " + e.getMessage());
+            System.out.println(" Error loading financial records: " + e.getMessage());
             e.printStackTrace();
 
             // Fallback: show the page with an empty list and an error message (avoid HTTP 500)
@@ -1036,7 +1036,7 @@ public class AdminController {
             financialRecordService.saveRecord(record);
             return "redirect:/admin/financial-records?success=record_added";
         } catch (Exception e) {
-            System.out.println("❌ Error adding record: " + e.getMessage());
+            System.out.println(" Error adding record: " + e.getMessage());
             return "redirect:/admin/financial-records?error=add_failed";
         }
     }
@@ -1069,7 +1069,7 @@ public class AdminController {
             financialRecordService.saveRecord(record);
             return "redirect:/admin/financial-records?success=record_updated";
         } catch (Exception e) {
-            System.out.println("❌ Error updating record: " + e.getMessage());
+            System.out.println(" Error updating record: " + e.getMessage());
             return "redirect:/admin/financial-records?error=update_failed";
         }
     }
@@ -1091,7 +1091,7 @@ public class AdminController {
                 return "redirect:/admin/financial-records?error=record_not_found";
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting record: " + e.getMessage());
+            System.out.println(" Error deleting record: " + e.getMessage());
             return "redirect:/admin/financial-records?error=delete_failed";
         }
     }

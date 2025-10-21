@@ -13,11 +13,11 @@ public class SessionService {
     public void login(User user) {
         this.currentUser = user;
         this.userRole = user.getRole();
-        System.out.println("✅ Session created for: " + user.getEmail() + " as " + user.getRole());
+        System.out.println(" Session created for: " + user.getEmail() + " as " + user.getRole());
     }
 
     public void logout() {
-        System.out.println("🔒 Session ended for: " + (currentUser != null ? currentUser.getEmail() : "Unknown"));
+        System.out.println(" Session ended for: " + (currentUser != null ? currentUser.getEmail() : "Unknown"));
         this.currentUser = null;
         this.userRole = null;
     }

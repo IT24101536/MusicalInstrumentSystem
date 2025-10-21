@@ -15,7 +15,7 @@ public class PaymentContext {
     @Autowired
     public PaymentContext(List<PaymentStrategy> paymentStrategies) {
         this.paymentStrategies = paymentStrategies;
-        System.out.println("✅ Payment Context initialized with " + paymentStrategies.size() + " strategies");
+        System.out.println(" Payment Context initialized with " + paymentStrategies.size() + " strategies");
     }
 
     public PaymentResult processPayment(Order order, User user, PaymentDetails paymentDetails) {
@@ -28,25 +28,25 @@ public class PaymentContext {
             PaymentStrategy strategy = findStrategy(paymentDetails.getPaymentMethod());
 
             if (strategy == null) {
-                System.out.println("❌ No payment strategy found for: " + paymentDetails.getPaymentMethod());
+                System.out.println(" No payment strategy found for: " + paymentDetails.getPaymentMethod());
                 return PaymentResult.failure("UNSUPPORTED_METHOD",
                         "Payment method not supported: " + paymentDetails.getPaymentMethod());
             }
 
-            System.out.println("✅ Using payment strategy: " + strategy.getPaymentMethodName());
+            System.out.println(" Using payment strategy: " + strategy.getPaymentMethodName());
             PaymentResult result = strategy.processPayment(order, user, paymentDetails);
 
-            System.out.println("💰 Payment Result: " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
+            System.out.println(" Payment Result: " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
             if (result.isSuccess()) {
-                System.out.println("📝 Transaction ID: " + result.getTransactionId());
+                System.out.println(" Transaction ID: " + result.getTransactionId());
             } else {
-                System.out.println("❌ Error: " + result.getMessage());
+                System.out.println(" Error: " + result.getMessage());
             }
 
             return result;
 
         } catch (Exception e) {
-            System.out.println("❌ Payment context error: " + e.getMessage());
+            System.out.println(" Payment context error: " + e.getMessage());
             return PaymentResult.failure("SYSTEM_ERROR", "Payment processing error: " + e.getMessage());
         }
     }

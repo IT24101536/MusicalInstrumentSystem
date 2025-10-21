@@ -38,7 +38,7 @@ public class PaymentRecordService {
             
             // Validate all required fields
             if (payment.getOrder() == null) {
-                System.out.println("⚠️ Warning: Order is null - this might be a test payment");
+                System.out.println("⚠ Warning: Order is null - this might be a test payment");
                 // For test payments, we'll allow null order
             }
             if (payment.getTransactionId() == null || payment.getTransactionId().trim().isEmpty()) {
@@ -66,14 +66,14 @@ public class PaymentRecordService {
                 payment.setUpdatedAt(LocalDateTime.now());
             }
             
-            System.out.println("✅ All validation checks passed");
+            System.out.println(" All validation checks passed");
             
             Payment savedPayment = paymentRepository.save(payment);
-            System.out.println("✅ Payment record saved with ID: " + savedPayment.getId());
+            System.out.println(" Payment record saved with ID: " + savedPayment.getId());
             return savedPayment;
         } catch (Exception e) {
-            System.out.println("❌ Error saving payment record: " + e.getMessage());
-            System.out.println("❌ Error type: " + e.getClass().getSimpleName());
+            System.out.println(" Error saving payment record: " + e.getMessage());
+            System.out.println(" Error type: " + e.getClass().getSimpleName());
             e.printStackTrace();
             throw new RuntimeException("Failed to save payment record: " + e.getMessage(), e);
         }
@@ -108,11 +108,11 @@ public class PaymentRecordService {
             System.out.println("  - Payment Date: " + payment.getPaymentDate());
 
             Payment savedPayment = paymentRepository.save(payment);
-            System.out.println("✅ Payment record created with ID: " + savedPayment.getId());
+            System.out.println(" Payment record created with ID: " + savedPayment.getId());
 
             return savedPayment;
         } catch (Exception e) {
-            System.out.println("❌ Error creating payment record: " + e.getMessage());
+            System.out.println(" Error creating payment record: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to create payment record", e);
         }
@@ -134,10 +134,10 @@ public class PaymentRecordService {
                         payment.setTransactionId(paymentResult.getTransactionId());
                     }
                     payment.setPaymentDate(LocalDateTime.now());
-                    System.out.println("✅ Payment marked as COMPLETED");
+                    System.out.println(" Payment marked as COMPLETED");
                 } else {
                     payment.setStatus("FAILED");
-                    System.out.println("❌ Payment marked as FAILED");
+                    System.out.println(" Payment marked as FAILED");
                 }
 
                 payment.setUpdatedAt(LocalDateTime.now());
@@ -148,15 +148,15 @@ public class PaymentRecordService {
                 System.out.println("  - Payment Date: " + payment.getPaymentDate());
 
                 Payment updatedPayment = paymentRepository.save(payment);
-                System.out.println("✅ Payment status updated successfully");
+                System.out.println(" Payment status updated successfully");
 
                 return updatedPayment;
             }
 
-            System.out.println("❌ Payment not found with ID: " + paymentId);
+            System.out.println(" Payment not found with ID: " + paymentId);
             return null;
         } catch (Exception e) {
-            System.out.println("❌ Error updating payment status: " + e.getMessage());
+            System.out.println(" Error updating payment status: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to update payment status", e);
         }
@@ -176,17 +176,17 @@ public class PaymentRecordService {
             payment.setPaymentDate(LocalDateTime.now());
 
             Payment savedPayment = paymentRepository.save(payment);
-            System.out.println("✅ Payment record completed successfully");
+            System.out.println(" Payment record completed successfully");
 
             return savedPayment;
         } else {
             // Create a new payment record if none exists
-            System.out.println("⚠️ No existing payment record found, creating new one");
+            System.out.println("⚠ No existing payment record found, creating new one");
             Payment payment = new Payment(order, transactionId, paymentMethod, order.getTotalAmount());
             payment.setStatus("COMPLETED");
 
             Payment savedPayment = paymentRepository.save(payment);
-            System.out.println("✅ New payment record created and completed");
+            System.out.println(" New payment record created and completed");
 
             return savedPayment;
         }
@@ -237,11 +237,11 @@ public class PaymentRecordService {
                 payment.setRefundReason(reason);
 
                 Payment refundedPayment = paymentRepository.save(payment);
-                System.out.println("✅ Payment refunded successfully");
+                System.out.println(" Payment refunded successfully");
 
                 return refundedPayment;
             } else {
-                System.out.println("❌ Payment cannot be refunded. Current status: " + payment.getStatus());
+                System.out.println(" Payment cannot be refunded. Current status: " + payment.getStatus());
             }
         }
 
@@ -258,14 +258,14 @@ public class PaymentRecordService {
         try {
             if (paymentRepository.existsById(paymentId)) {
                 paymentRepository.deleteById(paymentId);
-                System.out.println("✅ Payment deleted successfully: " + paymentId);
+                System.out.println(" Payment deleted successfully: " + paymentId);
                 return true;
             } else {
-                System.out.println("❌ Payment not found with ID: " + paymentId);
+                System.out.println(" Payment not found with ID: " + paymentId);
                 return false;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting payment: " + e.getMessage());
+            System.out.println(" Error deleting payment: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -281,14 +281,14 @@ public class PaymentRecordService {
             if (paymentOpt.isPresent()) {
                 Payment payment = paymentOpt.get();
                 paymentRepository.delete(payment);
-                System.out.println("✅ Payment deleted for order: " + order.getId());
+                System.out.println(" Payment deleted for order: " + order.getId());
                 return true;
             } else {
-                System.out.println("❌ No payment found for order: " + order.getId());
+                System.out.println(" No payment found for order: " + order.getId());
                 return false;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting payment by order: " + e.getMessage());
+            System.out.println(" Error deleting payment by order: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -304,14 +304,14 @@ public class PaymentRecordService {
             if (paymentOpt.isPresent()) {
                 Payment payment = paymentOpt.get();
                 paymentRepository.delete(payment);
-                System.out.println("✅ Payment deleted for transaction: " + transactionId);
+                System.out.println(" Payment deleted for transaction: " + transactionId);
                 return true;
             } else {
-                System.out.println("❌ No payment found for transaction: " + transactionId);
+                System.out.println(" No payment found for transaction: " + transactionId);
                 return false;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting payment by transaction: " + e.getMessage());
+            System.out.println(" Error deleting payment by transaction: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -326,14 +326,14 @@ public class PaymentRecordService {
             List<Payment> payments = paymentRepository.findAllById(paymentIds);
             if (!payments.isEmpty()) {
                 paymentRepository.deleteAll(payments);
-                System.out.println("✅ Deleted " + payments.size() + " payments");
+                System.out.println(" Deleted " + payments.size() + " payments");
                 return true;
             } else {
-                System.out.println("❌ No payments found with the provided IDs");
+                System.out.println(" No payments found with the provided IDs");
                 return false;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting multiple payments: " + e.getMessage());
+            System.out.println(" Error deleting multiple payments: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -347,14 +347,14 @@ public class PaymentRecordService {
             long count = paymentRepository.count();
             if (count > 0) {
                 paymentRepository.deleteAll();
-                System.out.println("✅ Deleted all " + count + " payments");
+                System.out.println(" Deleted all " + count + " payments");
                 return true;
             } else {
-                System.out.println("ℹ️ No payments to delete");
+                System.out.println("ℹ No payments to delete");
                 return true;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting all payments: " + e.getMessage());
+            System.out.println(" Error deleting all payments: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -368,14 +368,14 @@ public class PaymentRecordService {
             List<Payment> payments = paymentRepository.findByStatus(status);
             if (!payments.isEmpty()) {
                 paymentRepository.deleteAll(payments);
-                System.out.println("✅ Deleted " + payments.size() + " payments with status: " + status);
+                System.out.println(" Deleted " + payments.size() + " payments with status: " + status);
                 return true;
             } else {
-                System.out.println("ℹ️ No payments found with status: " + status);
+                System.out.println(" No payments found with status: " + status);
                 return true;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting payments by status: " + e.getMessage());
+            System.out.println(" Error deleting payments by status: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -390,14 +390,14 @@ public class PaymentRecordService {
             List<Payment> payments = paymentRepository.findByPaymentDateBetween(startDate, endDate);
             if (!payments.isEmpty()) {
                 paymentRepository.deleteAll(payments);
-                System.out.println("✅ Deleted " + payments.size() + " payments in date range");
+                System.out.println(" Deleted " + payments.size() + " payments in date range");
                 return true;
             } else {
-                System.out.println("ℹ️ No payments found in the specified date range");
+                System.out.println("ℹ No payments found in the specified date range");
                 return true;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting payments by date range: " + e.getMessage());
+            System.out.println(" Error deleting payments by date range: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -417,7 +417,7 @@ public class PaymentRecordService {
 
         totalRevenue = totalRevenue != null ? totalRevenue : 0.0;
 
-        System.out.println("📊 Payment Statistics:");
+        System.out.println(" Payment Statistics:");
         System.out.println("   - Total Revenue: $" + totalRevenue);
         System.out.println("   - Total Payments: " + totalPayments);
         System.out.println("   - Completed: " + completedPayments);
@@ -429,25 +429,19 @@ public class PaymentRecordService {
                 failedPayments, pendingPayments, refundedPayments);
     }
 
-    /**
-     * Get total payment count
-     */
+
     public long getTotalPaymentCount() {
         return paymentRepository.count();
     }
 
-    /**
-     * Check if payment exists
-     */
+
     public boolean paymentExists(Long paymentId) {
         return paymentRepository.existsById(paymentId);
     }
 
     // ========== ADVANCED SEARCH AND FILTERING ==========
 
-    /**
-     * Search payments with multiple criteria
-     */
+
     public List<Payment> searchPayments(String query, String status, String paymentMethod,
                                         String startDate, String endDate, Double minAmount, Double maxAmount) {
         System.out.println("=== SEARCHING PAYMENTS ===");
@@ -469,9 +463,7 @@ public class PaymentRecordService {
                 .toList();
     }
 
-    /**
-     * Filter payments by status, payment method, and date range
-     */
+
     public List<Payment> filterPayments(String status, String paymentMethod, String dateRange) {
         System.out.println("=== FILTERING PAYMENTS ===");
         System.out.println("Status: " + status);
@@ -486,11 +478,9 @@ public class PaymentRecordService {
                 .toList();
     }
 
-    // ========== BULK OPERATIONS ==========
+    //  BULK OPERATIONS
 
-    /**
-     * Bulk update payment status
-     */
+
     public boolean bulkUpdateStatus(List<Long> paymentIds, String newStatus) {
         System.out.println("=== BULK UPDATING PAYMENT STATUS ===");
         System.out.println("Payment IDs: " + paymentIds);
@@ -503,18 +493,16 @@ public class PaymentRecordService {
                 payment.setUpdatedAt(LocalDateTime.now());
             }
             paymentRepository.saveAll(payments);
-            System.out.println("✅ Updated " + payments.size() + " payments to status: " + newStatus);
+            System.out.println(" Updated " + payments.size() + " payments to status: " + newStatus);
             return true;
         } catch (Exception e) {
-            System.out.println("❌ Error bulk updating payment status: " + e.getMessage());
+            System.out.println(" Error bulk updating payment status: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
-    /**
-     * Bulk refund payments
-     */
+
     public int bulkRefund(List<Long> paymentIds, String reason) {
         System.out.println("=== BULK PROCESSING REFUNDS ===");
         System.out.println("Payment IDs: " + paymentIds);
@@ -533,19 +521,17 @@ public class PaymentRecordService {
                 }
             }
             paymentRepository.saveAll(payments);
-            System.out.println("✅ Refunded " + refundedCount + " payments");
+            System.out.println(" Refunded " + refundedCount + " payments");
         } catch (Exception e) {
-            System.out.println("❌ Error bulk processing refunds: " + e.getMessage());
+            System.out.println(" Error bulk processing refunds: " + e.getMessage());
             e.printStackTrace();
         }
         return refundedCount;
     }
 
-    // ========== ANALYTICS ==========
+    //  ANALYTICS
 
-    /**
-     * Get payment analytics for a specific period
-     */
+
     public PaymentAnalytics getPaymentAnalytics(String period) {
         System.out.println("=== GETTING PAYMENT ANALYTICS ===");
         System.out.println("Period: " + period);
@@ -569,9 +555,7 @@ public class PaymentRecordService {
         );
     }
 
-    /**
-     * Generate revenue report
-     */
+
     public String generateRevenueReport(String startDate, String endDate) {
         System.out.println("=== GENERATING REVENUE REPORT ===");
         System.out.println("Start Date: " + startDate);
@@ -593,11 +577,8 @@ public class PaymentRecordService {
                 LocalDateTime.now().toString());
     }
 
-    // ========== EXPORT FUNCTIONALITY ==========
+    //  EXPORT FUNCTIONALITY
 
-    /**
-     * Export payments to CSV
-     */
     public void exportPaymentsToCSV(String status, String startDate, String endDate, 
                                    jakarta.servlet.http.HttpServletResponse response) throws IOException {
         System.out.println("=== EXPORTING PAYMENTS TO CSV ===");
@@ -626,14 +607,11 @@ public class PaymentRecordService {
         }
     }
 
-    /**
-     * Export payments to PDF
-     */
+
     public void exportPaymentsToPDF(String status, String startDate, String endDate,
                                    jakarta.servlet.http.HttpServletResponse response) throws IOException {
         System.out.println("=== EXPORTING PAYMENTS TO PDF ===");
 
-        // For now, return a simple text response - in a real application, you would use a PDF library
         response.setContentType("text/plain");
         response.setHeader("Content-Disposition", "attachment; filename=payments.txt");
         
@@ -654,11 +632,8 @@ public class PaymentRecordService {
         }
     }
 
-    // ========== VALIDATION ==========
+    // VALIDATION
 
-    /**
-     * Validate payment
-     */
     public boolean validatePayment(Long paymentId) {
         System.out.println("=== VALIDATING PAYMENT ===");
         System.out.println("Payment ID: " + paymentId);
@@ -675,13 +650,13 @@ public class PaymentRecordService {
             }
             return false;
         } catch (Exception e) {
-            System.out.println("❌ Error validating payment: " + e.getMessage());
+            System.out.println(" Error validating payment: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
-    // ========== ANALYTICS DTO ==========
+    //  ANALYTICS DTO
 
     public static class PaymentAnalytics {
         private final Double totalRevenue;
@@ -722,8 +697,6 @@ public class PaymentRecordService {
             return (failedPayments.doubleValue() / totalPayments.doubleValue()) * 100;
         }
     }
-
-    // ========== STATISTICS DTO ==========
 
     public static class PaymentStatistics {
         private final Double totalRevenue;

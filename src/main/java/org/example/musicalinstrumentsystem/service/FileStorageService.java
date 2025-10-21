@@ -21,7 +21,7 @@ public class FileStorageService {
         this.uploadDir = Paths.get("uploads/products");
         try {
             Files.createDirectories(uploadDir);
-            System.out.println("✅ Upload directory created/verified: " + uploadDir.toAbsolutePath());
+            System.out.println(" Upload directory created/verified: " + uploadDir.toAbsolutePath());
         } catch (IOException e) {
             throw new RuntimeException("Could not create upload directory!", e);
         }
@@ -56,7 +56,7 @@ public class FileStorageService {
         // Save file
         Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
         
-        System.out.println("✅ File saved: " + uniqueFilename);
+        System.out.println(" File saved: " + uniqueFilename);
         
         // Return relative path for web access
         return "/uploads/products/" + uniqueFilename;
@@ -72,9 +72,9 @@ public class FileStorageService {
             String filename = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
             Path filePath = uploadDir.resolve(filename);
             Files.deleteIfExists(filePath);
-            System.out.println("✅ File deleted: " + filename);
+            System.out.println(" File deleted: " + filename);
         } catch (IOException e) {
-            System.err.println("❌ Failed to delete file: " + fileUrl);
+            System.err.println(" Failed to delete file: " + fileUrl);
             e.printStackTrace();
         }
     }

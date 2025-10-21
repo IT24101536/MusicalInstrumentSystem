@@ -25,7 +25,7 @@ public class ApplicationLogger {
     private ApplicationLogger() {
         logHistory = new ArrayList<>();
         formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        System.out.println("✅ ApplicationLogger Singleton initialized (Thread-Safe)");
+        System.out.println(" ApplicationLogger Singleton initialized (Thread-Safe)");
     }
     
 
@@ -101,7 +101,7 @@ public class ApplicationLogger {
 
     public synchronized void clearLogs() {
         logHistory.clear();
-        System.out.println("🗑️ Log history cleared");
+        System.out.println("️ Log history cleared");
     }
     
 
@@ -115,9 +115,9 @@ public class ApplicationLogger {
                 writer.write(formatLogEntry(entry) + "\n");
             }
             
-            System.out.println("✅ Logs exported to: " + filePath);
+            System.out.println(" Logs exported to: " + filePath);
         } catch (IOException e) {
-            System.err.println("❌ Failed to export logs: " + e.getMessage());
+            System.err.println(" Failed to export logs: " + e.getMessage());
         }
     }
     

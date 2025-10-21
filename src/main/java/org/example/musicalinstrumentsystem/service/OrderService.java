@@ -113,14 +113,14 @@ public class OrderService {
 
             Order savedOrder = orderRepository.save(order);
 
-            System.out.println("✅ Order payment completed successfully");
-            System.out.println("📝 Order Status: " + savedOrder.getStatus());
-            System.out.println("💳 Payment Status: " + savedOrder.getPaymentStatus());
-            System.out.println("💰 Transaction ID: " + savedOrder.getTransactionId());
+            System.out.println(" Order payment completed successfully");
+            System.out.println(" Order Status: " + savedOrder.getStatus());
+            System.out.println(" Payment Status: " + savedOrder.getPaymentStatus());
+            System.out.println(" Transaction ID: " + savedOrder.getTransactionId());
 
             return savedOrder;
         }
-        System.out.println("❌ Order not found for payment completion: " + orderId);
+        System.out.println(" Order not found for payment completion: " + orderId);
         return null;
     }
 
@@ -133,10 +133,10 @@ public class OrderService {
             System.out.println("Payment Status: " + order.getPaymentStatus());
             
             Order savedOrder = orderRepository.save(order);
-            System.out.println("✅ Order saved successfully");
+            System.out.println(" Order saved successfully");
             return savedOrder;
         } catch (Exception e) {
-            System.out.println("❌ Error saving order: " + e.getMessage());
+            System.out.println(" Error saving order: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to save order", e);
         }
@@ -155,12 +155,12 @@ public class OrderService {
             // Force flush to ensure immediate database update
             Order updatedOrder = orderRepository.save(order);
             
-            System.out.println("✅ Order updated successfully in database");
+            System.out.println(" Order updated successfully in database");
             System.out.println("Updated Order - ID: " + updatedOrder.getId() + ", Status: " + updatedOrder.getStatus());
             
             return updatedOrder;
         } catch (Exception e) {
-            System.out.println("❌ Error updating order: " + e.getMessage());
+            System.out.println(" Error updating order: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to update order", e);
         }
@@ -171,7 +171,7 @@ public class OrderService {
         try {
             return orderRepository.count();
         } catch (Exception e) {
-            System.out.println("❌ Error getting order count: " + e.getMessage());
+            System.out.println(" Error getting order count: " + e.getMessage());
             return 0;
         }
     }
@@ -217,14 +217,14 @@ public class OrderService {
             Optional<Order> orderOpt = orderRepository.findById(orderId);
             
             if (orderOpt.isEmpty()) {
-                System.out.println("❌ Order not found with ID: " + orderId);
+                System.out.println(" Order not found with ID: " + orderId);
                 return false;
             }
             
             Order order = orderOpt.get();
 
             if (!"DELIVERED".equals(order.getStatus()) && !"CANCELLED".equals(order.getStatus())) {
-                System.out.println("🔄 Restoring stock for deleted order");
+                System.out.println(" Restoring stock for deleted order");
                 for (OrderItem item : order.getOrderItems()) {
                     Product product = item.getProduct();
                     product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
@@ -234,11 +234,11 @@ public class OrderService {
             
             // Delete the order
             orderRepository.deleteById(orderId);
-            System.out.println("✅ Order deleted successfully");
+            System.out.println(" Order deleted successfully");
             return true;
             
         } catch (Exception e) {
-            System.out.println("❌ Error deleting order: " + e.getMessage());
+            System.out.println(" Error deleting order: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

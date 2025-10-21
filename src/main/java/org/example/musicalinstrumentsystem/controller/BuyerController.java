@@ -32,17 +32,17 @@ public class BuyerController {
         System.out.println("=== ACCESSING BUYER DASHBOARD ===");
 
         if (!sessionService.isLoggedIn()) {
-            System.out.println("❌ Access denied: Not logged in");
+            System.out.println(" Access denied: Not logged in");
             return "redirect:/login?error=access_denied";
         }
 
         if (!"BUYER".equals(sessionService.getUserRole())) {
-            System.out.println("❌ Access denied: User role is " + sessionService.getUserRole() + ", expected BUYER");
+            System.out.println(" Access denied: User role is " + sessionService.getUserRole() + ", expected BUYER");
             return "redirect:/login?error=access_denied";
         }
 
         User currentUser = sessionService.getCurrentUser();
-        System.out.println("✅ Access granted for buyer: " + currentUser.getEmail());
+        System.out.println(" Access granted for buyer: " + currentUser.getEmail());
 
         try {
             // Get products for buyer dashboard
@@ -64,7 +64,7 @@ public class BuyerController {
                     "Accessories", "Amplifiers", "Recording Equipment"
             );
 
-            System.out.println("📊 Dashboard Data:");
+            System.out.println(" Dashboard Data:");
             System.out.println("   - Available Products: " + availableProducts.size());
             System.out.println("   - Recent Products: " + recentProducts.size());
             System.out.println("   - Categories: " + categories.size());
@@ -78,7 +78,7 @@ public class BuyerController {
             return "buyer/dashboard";
 
         } catch (Exception e) {
-            System.out.println("❌ ERROR in buyerDashboard: " + e.getMessage());
+            System.out.println(" ERROR in buyerDashboard: " + e.getMessage());
             e.printStackTrace();
 
             // Return safe default values on error

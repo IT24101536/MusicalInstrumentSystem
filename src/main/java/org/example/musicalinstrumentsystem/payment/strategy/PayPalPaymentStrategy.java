@@ -37,7 +37,7 @@ public class PayPalPaymentStrategy implements PaymentStrategy {
             }
 
             // PayPal authentication
-            System.out.println("🔐 Authenticating with PayPal...");
+            System.out.println(" Authenticating with PayPal...");
 
             // API call delay
             try {
@@ -53,9 +53,9 @@ public class PayPalPaymentStrategy implements PaymentStrategy {
             // transaction ID
             String transactionId = "PP_" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
-            System.out.println("✅ PayPal payment processed successfully");
-            System.out.println("📝 Transaction ID: " + transactionId);
-            System.out.println("📧 PayPal Email: " + email);
+            System.out.println(" PayPal payment processed successfully");
+            System.out.println(" Transaction ID: " + transactionId);
+            System.out.println(" PayPal Email: " + email);
 
             PaymentResult result = PaymentResult.success(transactionId, "PayPal payment processed successfully");
             result.setAmount(order.getTotalAmount());
@@ -63,7 +63,7 @@ public class PayPalPaymentStrategy implements PaymentStrategy {
             return result;
 
         } catch (Exception e) {
-            System.out.println("❌ PayPal payment failed: " + e.getMessage());
+            System.out.println(" PayPal payment failed: " + e.getMessage());
             return PaymentResult.failure("PROCESSING_ERROR", "PayPal payment failed: " + e.getMessage());
         }
     }

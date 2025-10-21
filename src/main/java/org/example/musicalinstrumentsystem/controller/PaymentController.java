@@ -63,7 +63,7 @@ public class PaymentController {
         try {
             var orderOpt = orderService.getOrderById(orderId);
             if (orderOpt.isEmpty()) {
-                System.out.println("❌ Order not found: " + orderId);
+                System.out.println(" Order not found: " + orderId);
                 return "redirect:/buyer/orders?error=order_not_found";
             }
 
@@ -71,20 +71,20 @@ public class PaymentController {
 
             // Check if order belongs to user
             if (!order.getBuyer().getId().equals(currentUser.getId())) {
-                System.out.println("❌ Order access denied for user: " + currentUser.getEmail());
+                System.out.println(" Order access denied for user: " + currentUser.getEmail());
                 return "redirect:/buyer/orders?error=access_denied";
             }
 
             // Check if order is already paid
             if ("COMPLETED".equals(order.getPaymentStatus())) {
-                System.out.println("✅ Order already paid, redirecting to success");
+                System.out.println(" Order already paid, redirecting to success");
                 return "redirect:/payment/success/" + orderId + "?transactionId=" + order.getTransactionId();
             }
 
-            System.out.println("✅ Loading payment page for order: " + orderId);
-            System.out.println("💰 Order Amount: $" + order.getTotalAmount());
-            System.out.println("📦 Order Status: " + order.getStatus());
-            System.out.println("💳 Payment Status: " + order.getPaymentStatus());
+            System.out.println(" Loading payment page for order: " + orderId);
+            System.out.println(" Order Amount: $" + order.getTotalAmount());
+            System.out.println(" Order Status: " + order.getStatus());
+            System.out.println(" Payment Status: " + order.getPaymentStatus());
 
             model.addAttribute("user", currentUser);
             model.addAttribute("order", order);
@@ -100,7 +100,7 @@ public class PaymentController {
             return "payment/payment-page";
 
         } catch (Exception e) {
-            System.out.println("❌ Error showing payment page: " + e.getMessage());
+            System.out.println(" Error showing payment page: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/buyer/orders?error=payment_error";
         }
@@ -126,7 +126,7 @@ public class PaymentController {
         try {
             var orderOpt = orderService.getOrderById(orderId);
             if (orderOpt.isEmpty()) {
-                System.out.println("❌ Order not found: " + orderId);
+                System.out.println(" Order not found: " + orderId);
                 return "redirect:/buyer/orders?error=order_not_found";
             }
 
@@ -134,17 +134,17 @@ public class PaymentController {
 
             // Check if order belongs to user
             if (!order.getBuyer().getId().equals(currentUser.getId())) {
-                System.out.println("❌ Order access denied for user: " + currentUser.getEmail());
+                System.out.println(" Order access denied for user: " + currentUser.getEmail());
                 return "redirect:/buyer/orders?error=access_denied";
             }
 
             // Check if order is already paid
             if ("COMPLETED".equals(order.getPaymentStatus())) {
-                System.out.println("✅ Order already paid, redirecting to success");
+                System.out.println(" Order already paid, redirecting to success");
                 return "redirect:/payment/success/" + orderId + "?transactionId=" + order.getTransactionId();
             }
 
-            System.out.println("🔄 Creating payment details...");
+            System.out.println(" Creating payment details...");
             System.out.println("Payment Method String: " + paymentMethod);
             System.out.println("Payment Data Map: " + paymentData);
             
@@ -157,27 +157,27 @@ public class PaymentController {
             System.out.println("  - Method: " + paymentDetails.getPaymentMethod());
             System.out.println("  - Data: " + paymentDetails.getPaymentData());
 
-            System.out.println("🔄 Processing payment...");
+            System.out.println(" Processing payment...");
             // Process payment using simplified approach
             PaymentResult result = processPaymentSimple(order, currentUser, paymentDetails);
 
-            System.out.println("🔄 Payment Result Analysis:");
+            System.out.println(" Payment Result Analysis:");
             System.out.println("   - Success: " + result.isSuccess());
             System.out.println("   - Transaction ID: " + result.getTransactionId());
             System.out.println("   - Message: " + result.getMessage());
 
             if (result.isSuccess()) {
-                System.out.println("✅ Payment successful, redirecting to success page");
+                System.out.println(" Payment successful, redirecting to success page");
                 return "redirect:/payment/success/" + orderId + "?transactionId=" + result.getTransactionId();
             } else {
-                System.out.println("❌ Payment failed: " + result.getMessage());
+                System.out.println(" Payment failed: " + result.getMessage());
                 // Return to payment page with error
                 String encodedMessage = URLEncoder.encode(result.getMessage(), StandardCharsets.UTF_8);
                 return "redirect:/payment/order/" + orderId + "?error=payment_failed&message=" + encodedMessage;
             }
 
         } catch (Exception e) {
-            System.out.println("❌ Payment processing error: " + e.getMessage());
+            System.out.println(" Payment processing error: " + e.getMessage());
             e.printStackTrace();
             String encodedMessage = URLEncoder.encode("Payment processing error: " + e.getMessage(), StandardCharsets.UTF_8);
             return "redirect:/payment/order/" + orderId + "?error=processing_error&message=" + encodedMessage;
@@ -205,7 +205,7 @@ public class PaymentController {
             if (orderOpt.isPresent()) {
                 Order order = orderOpt.get();
 
-                System.out.println("✅ Loading success page for order:");
+                System.out.println(" Loading success page for order:");
                 System.out.println("   - Order Status: " + order.getStatus());
                 System.out.println("   - Payment Status: " + order.getPaymentStatus());
                 System.out.println("   - Transaction ID: " + order.getTransactionId());
@@ -215,11 +215,11 @@ public class PaymentController {
                 model.addAttribute("transactionId", transactionId);
                 return "payment/payment-success";
             } else {
-                System.out.println("❌ Order not found for success page: " + orderId);
+                System.out.println(" Order not found for success page: " + orderId);
                 return "redirect:/buyer/orders?error=order_not_found";
             }
         } catch (Exception e) {
-            System.out.println("❌ Error showing payment success: " + e.getMessage());
+            System.out.println(" Error showing payment success: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/buyer/orders?error=payment_success_error";
         }
@@ -290,28 +290,28 @@ public class PaymentController {
         try {
             // Validate order status
             if (!"PENDING".equals(order.getStatus())) {
-                System.out.println("❌ Invalid order status: " + order.getStatus());
+                System.out.println(" Invalid order status: " + order.getStatus());
                 return PaymentResult.failure("INVALID_ORDER_STATUS",
                         "Cannot process payment for order with status: " + order.getStatus());
             }
 
             // Check if already paid
             if ("COMPLETED".equals(order.getPaymentStatus())) {
-                System.out.println("❌ Order already paid");
+                System.out.println(" Order already paid");
                 return PaymentResult.failure("ALREADY_PAID", "Order has already been paid");
             }
 
             // Process payment using strategy pattern
-            System.out.println("🔄 Processing payment with strategy...");
+            System.out.println(" Processing payment with strategy...");
             PaymentResult paymentResult = paymentContext.processPayment(order, user, paymentDetails);
 
-            System.out.println("🔄 Payment Result: " + (paymentResult.isSuccess() ? "SUCCESS" : "FAILED"));
-            System.out.println("📝 Transaction ID: " + paymentResult.getTransactionId());
-            System.out.println("💬 Message: " + paymentResult.getMessage());
+            System.out.println(" Payment Result: " + (paymentResult.isSuccess() ? "SUCCESS" : "FAILED"));
+            System.out.println(" Transaction ID: " + paymentResult.getTransactionId());
+            System.out.println(" Message: " + paymentResult.getMessage());
 
             if (paymentResult.isSuccess()) {
                 // Create payment record
-                System.out.println("🔄 Creating payment record...");
+                System.out.println(" Creating payment record...");
                 Payment paymentRecord = new Payment();
                 
                 // Set all required fields explicitly
@@ -343,10 +343,10 @@ public class PaymentController {
                 System.out.println("  - Updated At: " + paymentRecord.getUpdatedAt());
 
                 Payment savedPayment = paymentRecordService.savePayment(paymentRecord);
-                System.out.println("✅ Payment record created with ID: " + savedPayment.getId());
+                System.out.println(" Payment record created with ID: " + savedPayment.getId());
 
                 // Update order
-                System.out.println("🔄 Updating order...");
+                System.out.println(" Updating order...");
                 order.setPaymentStatus("COMPLETED");
                 order.setTransactionId(paymentResult.getTransactionId());
                 order.setPaymentMethod(paymentDetails.getPaymentMethod().getDisplayName());
@@ -354,16 +354,16 @@ public class PaymentController {
                 order.setStatus("CONFIRMED");
 
                 Order savedOrder = orderService.saveOrder(order);
-                System.out.println("✅ Order updated successfully");
+                System.out.println(" Order updated successfully");
 
-                System.out.println("✅ Payment processing completed successfully");
-                System.out.println("📝 Final Order Status: " + savedOrder.getStatus());
-                System.out.println("💳 Final Payment Status: " + savedOrder.getPaymentStatus());
-                System.out.println("💰 Transaction ID: " + savedOrder.getTransactionId());
-                System.out.println("💾 Payment Record ID: " + savedPayment.getId());
+                System.out.println(" Payment processing completed successfully");
+                System.out.println(" Final Order Status: " + savedOrder.getStatus());
+                System.out.println(" Final Payment Status: " + savedOrder.getPaymentStatus());
+                System.out.println(" Transaction ID: " + savedOrder.getTransactionId());
+                System.out.println(" Payment Record ID: " + savedPayment.getId());
             } else {
                 // Create failed payment record
-                System.out.println("🔄 Creating failed payment record...");
+                System.out.println(" Creating failed payment record...");
                 Payment paymentRecord = new Payment();
                 
                 // Set all required fields explicitly
@@ -385,18 +385,18 @@ public class PaymentController {
                 paymentRecord.setPaymentDetails(paymentDetailsJson);
 
                 paymentRecordService.savePayment(paymentRecord);
-                System.out.println("✅ Failed payment record created");
+                System.out.println(" Failed payment record created");
 
                 // Update order to failed
                 order.setPaymentStatus("FAILED");
                 orderService.saveOrder(order);
-                System.out.println("✅ Order marked as failed");
+                System.out.println(" Order marked as failed");
             }
 
             return paymentResult;
 
         } catch (Exception e) {
-            System.out.println("❌ Simplified payment processing error: " + e.getMessage());
+            System.out.println(" Simplified payment processing error: " + e.getMessage());
             e.printStackTrace();
             return PaymentResult.failure("PAYMENT_SERVICE_ERROR", "Payment processing error: " + e.getMessage());
         }
@@ -411,30 +411,30 @@ public class PaymentController {
         System.out.println("Order ID: " + orderId);
 
         if (!sessionService.isLoggedIn()) {
-            return "❌ Not logged in";
+            return " Not logged in";
         }
 
         try {
             var orderOpt = orderService.getOrderById(orderId);
             if (orderOpt.isEmpty()) {
-                return "❌ Order not found: " + orderId;
+                return " Order not found: " + orderId;
             }
 
             Order order = orderOpt.get();
             System.out.println("Order found: " + order.getId() + " - Amount: $" + order.getTotalAmount());
 
             // Test database connection first
-            System.out.println("🔄 Testing database connection...");
+            System.out.println(" Testing database connection...");
             try {
                 long paymentCount = paymentRecordService.getTotalPaymentCount();
-                System.out.println("✅ Database connection OK. Total payments: " + paymentCount);
+                System.out.println(" Database connection OK. Total payments: " + paymentCount);
             } catch (Exception dbError) {
-                System.out.println("❌ Database connection failed: " + dbError.getMessage());
-                return "❌ Database connection failed: " + dbError.getMessage();
+                System.out.println(" Database connection failed: " + dbError.getMessage());
+                return " Database connection failed: " + dbError.getMessage();
             }
 
             // Create test payment record directly
-            System.out.println("🔄 Creating test payment record...");
+            System.out.println(" Creating test payment record...");
             Payment testPayment = new Payment();
             testPayment.setOrder(order);
             testPayment.setPaymentMethod("CREDIT_CARD");
@@ -448,17 +448,17 @@ public class PaymentController {
             testPayment.setPaymentDetails("{\"test\": true}");
 
             Payment savedPayment = paymentRecordService.savePayment(testPayment);
-            System.out.println("✅ Test payment record created with ID: " + savedPayment.getId());
+            System.out.println(" Test payment record created with ID: " + savedPayment.getId());
 
-            return "✅ Test payment creation successful! Payment ID: " + savedPayment.getId() + 
+            return " Test payment creation successful! Payment ID: " + savedPayment.getId() +
                    ", Order ID: " + order.getId() + 
                    ", Amount: $" + order.getTotalAmount();
 
         } catch (Exception e) {
-            System.out.println("❌ Test payment creation failed: " + e.getMessage());
-            System.out.println("❌ Error type: " + e.getClass().getSimpleName());
+            System.out.println(" Test payment creation failed: " + e.getMessage());
+            System.out.println(" Error type: " + e.getClass().getSimpleName());
             e.printStackTrace();
-            return "❌ Test payment creation failed: " + e.getMessage();
+            return " Test payment creation failed: " + e.getMessage();
         }
     }
 
@@ -470,19 +470,19 @@ public class PaymentController {
         try {
             // Test payment repository
             long paymentCount = paymentRecordService.getTotalPaymentCount();
-            System.out.println("✅ Payment repository OK. Total payments: " + paymentCount);
+            System.out.println(" Payment repository OK. Total payments: " + paymentCount);
             
             // Test order repository
             long orderCount = orderService.getTotalOrderCount();
-            System.out.println("✅ Order repository OK. Total orders: " + orderCount);
+            System.out.println(" Order repository OK. Total orders: " + orderCount);
             
-            return "✅ Database health check passed! Payments: " + paymentCount + ", Orders: " + orderCount;
+            return " Database health check passed! Payments: " + paymentCount + ", Orders: " + orderCount;
             
         } catch (Exception e) {
-            System.out.println("❌ Database health check failed: " + e.getMessage());
-            System.out.println("❌ Error type: " + e.getClass().getSimpleName());
+            System.out.println(" Database health check failed: " + e.getMessage());
+            System.out.println(" Error type: " + e.getClass().getSimpleName());
             e.printStackTrace();
-            return "❌ Database health check failed: " + e.getMessage();
+            return " Database health check failed: " + e.getMessage();
         }
     }
 }

@@ -20,6 +20,6 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploads/products/**")
                 .addResourceLocations("file:" + uploadPath + "/");
         
-        System.out.println("✅ Static resource mapping configured: /uploads/products/ -> " + uploadPath);
+        System.out.println(" Static resource mapping configured: /uploads/products/ -> " + uploadPath);
     }
 }

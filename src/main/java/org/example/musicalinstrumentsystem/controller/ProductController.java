@@ -108,18 +108,18 @@ public class ProductController {
             if (imageFile != null && !imageFile.isEmpty()) {
                 String savedFilePath = fileStorageService.saveFile(imageFile);
                 product.setImageUrl(savedFilePath);
-                System.out.println("✅ Image uploaded: " + savedFilePath);
+                System.out.println(" Image uploaded: " + savedFilePath);
             } else if (imageUrl != null && !imageUrl.trim().isEmpty()) {
                 product.setImageUrl(imageUrl);
-                System.out.println("✅ Image URL set: " + imageUrl);
+                System.out.println(" Image URL set: " + imageUrl);
             }
         } catch (IOException e) {
-            System.err.println("❌ Failed to upload image: " + e.getMessage());
+            System.err.println(" Failed to upload image: " + e.getMessage());
             return "redirect:/seller/products/new?error=upload_failed";
         }
 
         productService.createProduct(product);
-        System.out.println("✅ Product created: " + name);
+        System.out.println(" Product created: " + name);
 
         return "redirect:/seller/products?success=product_created";
     }
@@ -210,23 +210,23 @@ public class ProductController {
                 }
                 String savedFilePath = fileStorageService.saveFile(imageFile);
                 product.setImageUrl(savedFilePath);
-                System.out.println("✅ Image updated: " + savedFilePath);
+                System.out.println(" Image updated: " + savedFilePath);
             } else if (imageUrl != null && !imageUrl.trim().isEmpty() && !"on".equals(keepExistingImage)) {
 
                 if (oldImageUrl != null && oldImageUrl.startsWith("/uploads/")) {
                     fileStorageService.deleteFile(oldImageUrl);
                 }
                 product.setImageUrl(imageUrl);
-                System.out.println("✅ Image URL updated: " + imageUrl);
+                System.out.println(" Image URL updated: " + imageUrl);
             }
 
         } catch (IOException e) {
-            System.err.println("❌ Failed to upload image: " + e.getMessage());
+            System.err.println(" Failed to upload image: " + e.getMessage());
             return "redirect:/seller/products/edit/" + id + "?error=upload_failed";
         }
 
         productService.updateProduct(product);
-        System.out.println("✅ Product updated: " + name);
+        System.out.println(" Product updated: " + name);
 
         return "redirect:/seller/products?success=product_updated";
     }
@@ -264,14 +264,14 @@ public class ProductController {
 
             boolean deleted = productService.deleteProduct(id);
             if (deleted) {
-                System.out.println("✅ Product deleted: " + product.getName());
+                System.out.println(" Product deleted: " + product.getName());
                 return "redirect:/seller/products?success=product_deleted";
             } else {
-                System.out.println("❌ Product deletion failed: " + product.getName());
+                System.out.println(" Product deletion failed: " + product.getName());
                 return "redirect:/seller/products?error=delete_failed";
             }
         } catch (Exception e) {
-            System.out.println("❌ Cannot delete product: " + e.getMessage());
+            System.out.println(" Cannot delete product: " + e.getMessage());
             // Check if it's a foreign key constraint violation
             if (e.getMessage() != null && e.getMessage().contains("foreign key constraint")) {
                 return "redirect:/seller/products?error=product_has_orders";
@@ -306,7 +306,7 @@ public class ProductController {
         }
 
         productService.updateStock(productId, newQuantity);
-        System.out.println("✅ Stock updated for: " + product.getName());
+        System.out.println(" Stock updated for: " + product.getName());
 
         return "redirect:/seller/products?success=stock_updated";
     }

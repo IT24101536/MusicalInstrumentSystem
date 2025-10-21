@@ -32,17 +32,17 @@ public class SellerController {
         System.out.println("=== ACCESSING SELLER DASHBOARD ===");
 
         if (!sessionService.isLoggedIn()) {
-            System.out.println("❌ Access denied: Not logged in");
+            System.out.println(" Access denied: Not logged in");
             return "redirect:/login?error=access_denied";
         }
 
         if (!"SELLER".equals(sessionService.getUserRole())) {
-            System.out.println("❌ Access denied: User role is " + sessionService.getUserRole() + ", expected SELLER");
+            System.out.println(" Access denied: User role is " + sessionService.getUserRole() + ", expected SELLER");
             return "redirect:/login?error=access_denied";
         }
 
         User currentUser = sessionService.getCurrentUser();
-        System.out.println("✅ Access granted for seller: " + currentUser.getEmail());
+        System.out.println(" Access granted for seller: " + currentUser.getEmail());
 
         try {
             // Add product statistics for seller dashboard
@@ -58,7 +58,7 @@ public class SellerController {
             long outOfStockCount = sellerProducts.stream().filter(p -> p.getStockQuantity() == 0).count();
             double totalStockValue = productService.getTotalStockValueBySeller(currentUser);
 
-            System.out.println("📊 Seller Dashboard Data:");
+            System.out.println(" Seller Dashboard Data:");
             System.out.println("   - Total Products: " + productCount);
             System.out.println("   - Low Stock: " + lowStockCount);
             System.out.println("   - Out of Stock: " + outOfStockCount);
@@ -74,7 +74,7 @@ public class SellerController {
             return "seller/dashboard";
 
         } catch (Exception e) {
-            System.out.println("❌ ERROR in sellerDashboard: " + e.getMessage());
+            System.out.println(" ERROR in sellerDashboard: " + e.getMessage());
             e.printStackTrace();
 
             // Return safe default values on error

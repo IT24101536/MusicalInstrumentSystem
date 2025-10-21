@@ -94,14 +94,14 @@ public class OrderController {
         System.out.println("💰 Cart total: $" + cart.getTotalAmount());
 
         if (cart.isEmpty()) {
-            System.out.println("❌ Cart is empty");
+            System.out.println(" Cart is empty");
             return "redirect:/buyer/cart?error=empty_cart";
         }
 
         try {
             // Validate cart before checkout
             if (!cartService.validateCartForCheckout(currentUser)) {
-                System.out.println("❌ Cart validation failed");
+                System.out.println(" Cart validation failed");
                 Map<String, String> errors = cartService.getCartValidationErrors(currentUser);
                 System.out.println("Validation errors: " + errors);
                 return "redirect:/buyer/cart?error=checkout_validation_failed";
@@ -112,7 +112,7 @@ public class OrderController {
             for (CartItem item : cart.getCartItems()) {
                 if (item.getProduct() != null) {
                     productQuantities.put(item.getProduct().getId(), item.getQuantity());
-                    System.out.println("📦 Product: " + item.getProduct().getName() + " x " + item.getQuantity());
+                    System.out.println(" Product: " + item.getProduct().getName() + " x " + item.getQuantity());
                 }
             }
 
@@ -120,21 +120,21 @@ public class OrderController {
             Order order = orderService.createOrder(currentUser, productQuantities, shippingAddress);
 
             if (order == null) {
-                System.out.println("❌ Order creation returned null");
+                System.out.println(" Order creation returned null");
                 return "redirect:/buyer/cart?error=order_creation_failed";
             }
 
             // Clear cart after successful order creation
             cartService.clearCart(currentUser);
 
-            System.out.println("✅ Order created successfully: " + order.getId());
-            System.out.println("💰 Order total: $" + order.getTotalAmount());
+            System.out.println(" Order created successfully: " + order.getId());
+            System.out.println(" Order total: $" + order.getTotalAmount());
 
 
             return "redirect:/payment/order/" + order.getId();
 
         } catch (Exception e) {
-            System.out.println("❌ Error creating order: " + e.getMessage());
+            System.out.println(" Error creating order: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/buyer/cart?error=order_failed&message=" + e.getMessage();
         }

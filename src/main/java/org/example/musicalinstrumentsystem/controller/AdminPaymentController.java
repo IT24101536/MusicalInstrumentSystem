@@ -32,7 +32,7 @@ public class AdminPaymentController {
         System.out.println("=== DEBUG: CHECKING PAYMENTS ===");
 
         if (!sessionService.isLoggedIn() || !"ADMIN".equals(sessionService.getUserRole())) {
-            return "❌ Not logged in as admin";
+            return " Not logged in as admin";
         }
 
         try {
@@ -66,15 +66,15 @@ public class AdminPaymentController {
                           .append("\n");
                 }
             } else {
-                result.append("❌ No payments found in database\n");
+                result.append(" No payments found in database\n");
             }
 
             return result.toString();
 
         } catch (Exception e) {
-            System.out.println("❌ Debug error: " + e.getMessage());
+            System.out.println(" Debug error: " + e.getMessage());
             e.printStackTrace();
-            return "❌ Debug error: " + e.getMessage();
+            return " Debug error: " + e.getMessage();
         }
     }
 
@@ -84,7 +84,7 @@ public class AdminPaymentController {
         System.out.println("=== DEBUG: CREATING TEST PAYMENT ===");
 
         if (!sessionService.isLoggedIn() || !"ADMIN".equals(sessionService.getUserRole())) {
-            return "❌ Not logged in as admin";
+            return " Not logged in as admin";
         }
 
         try {
@@ -103,16 +103,16 @@ public class AdminPaymentController {
 
             Payment savedPayment = paymentRecordService.savePayment(testPayment);
             
-            System.out.println("✅ Test payment created with ID: " + savedPayment.getId());
+            System.out.println(" Test payment created with ID: " + savedPayment.getId());
 
-            return "✅ Test payment created successfully! ID: " + savedPayment.getId() + 
+            return " Test payment created successfully! ID: " + savedPayment.getId() +
                    ", Amount: $" + savedPayment.getAmount() + 
                    ", Status: " + savedPayment.getStatus();
 
         } catch (Exception e) {
-            System.out.println("❌ Error creating test payment: " + e.getMessage());
+            System.out.println(" Error creating test payment: " + e.getMessage());
             e.printStackTrace();
-            return "❌ Error creating test payment: " + e.getMessage();
+            return " Error creating test payment: " + e.getMessage();
         }
     }
 
@@ -123,30 +123,30 @@ public class AdminPaymentController {
         System.out.println("=== VIEWING ALL PAYMENTS ===");
 
         if (!sessionService.isLoggedIn() || !"ADMIN".equals(sessionService.getUserRole())) {
-            System.out.println("❌ Access denied - not logged in as admin");
+            System.out.println(" Access denied - not logged in as admin");
             return "redirect:/login?error=access_denied";
         }
 
         try {
-            System.out.println("🔄 Fetching payments from database...");
+            System.out.println(" Fetching payments from database...");
             List<Payment> payments = paymentRecordService.getAllPayments();
-            System.out.println("📊 Retrieved " + payments.size() + " payments from database");
+            System.out.println(" Retrieved " + payments.size() + " payments from database");
 
-            System.out.println("🔄 Fetching payment statistics...");
+            System.out.println(" Fetching payment statistics...");
             var statistics = paymentRecordService.getPaymentStatistics();
-            System.out.println("📈 Statistics: " + statistics);
+            System.out.println(" Statistics: " + statistics);
 
             model.addAttribute("payments", payments);
             model.addAttribute("statistics", statistics);
             model.addAttribute("user", sessionService.getCurrentUser());
 
-            System.out.println("✅ Loaded " + payments.size() + " payments");
-            System.out.println("✅ Model attributes set successfully");
+            System.out.println(" Loaded " + payments.size() + " payments");
+            System.out.println(" Model attributes set successfully");
 
             return "admin/payments";
 
         } catch (Exception e) {
-            System.out.println("❌ Error loading payments: " + e.getMessage());
+            System.out.println(" Error loading payments: " + e.getMessage());
             e.printStackTrace();
             model.addAttribute("error", "Failed to load payments: " + e.getMessage());
             model.addAttribute("payments", List.of()); // Empty list to prevent template errors
@@ -175,7 +175,7 @@ public class AdminPaymentController {
                 return "redirect:/admin/payments?error=payment_not_found";
             }
         } catch (Exception e) {
-            System.out.println("❌ Error loading payment details: " + e.getMessage());
+            System.out.println(" Error loading payment details: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=load_failed";
         }
@@ -200,7 +200,7 @@ public class AdminPaymentController {
                 return "redirect:/admin/payments?error=payment_not_found";
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting payment: " + e.getMessage());
+            System.out.println(" Error deleting payment: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=delete_failed";
         }
@@ -223,7 +223,7 @@ public class AdminPaymentController {
                 return "redirect:/admin/payments?error=no_payments_found";
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting multiple payments: " + e.getMessage());
+            System.out.println(" Error deleting multiple payments: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=delete_failed";
         }
@@ -246,7 +246,7 @@ public class AdminPaymentController {
                 return "redirect:/admin/payments?error=delete_failed";
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting payments by status: " + e.getMessage());
+            System.out.println(" Error deleting payments by status: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=delete_failed";
         }
@@ -275,7 +275,7 @@ public class AdminPaymentController {
                 return "redirect:/admin/payments?error=no_payments_found";
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting payments by date range: " + e.getMessage());
+            System.out.println(" Error deleting payments by date range: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=delete_failed";
         }
@@ -297,7 +297,7 @@ public class AdminPaymentController {
                 return "redirect:/admin/payments?error=delete_failed";
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting all payments: " + e.getMessage());
+            System.out.println(" Error deleting all payments: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=delete_failed";
         }
@@ -326,7 +326,7 @@ public class AdminPaymentController {
                 return "redirect:/admin/payments?error=cannot_refund";
             }
         } catch (Exception e) {
-            System.out.println("❌ Error processing refund: " + e.getMessage());
+            System.out.println(" Error processing refund: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=refund_failed";
         }
@@ -354,7 +354,7 @@ public class AdminPaymentController {
                 return "redirect:/admin/payments?error=payment_not_found";
             }
         } catch (Exception e) {
-            System.out.println("❌ Error updating payment status: " + e.getMessage());
+            System.out.println(" Error updating payment status: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=update_failed";
         }
@@ -380,12 +380,12 @@ public class AdminPaymentController {
             model.addAttribute("user", sessionService.getCurrentUser());
             model.addAttribute("filterStatus", status);
 
-            System.out.println("✅ Loaded " + payments.size() + " payments with status: " + status);
+            System.out.println(" Loaded " + payments.size() + " payments with status: " + status);
 
             return "admin/payments";
 
         } catch (Exception e) {
-            System.out.println("❌ Error loading payments by status: " + e.getMessage());
+            System.out.println(" Error loading payments by status: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=load_failed";
         }
@@ -408,12 +408,12 @@ public class AdminPaymentController {
             model.addAttribute("user", sessionService.getCurrentUser());
             model.addAttribute("filterRecent", true);
 
-            System.out.println("✅ Loaded " + payments.size() + " recent payments");
+            System.out.println(" Loaded " + payments.size() + " recent payments");
 
             return "admin/payments";
 
         } catch (Exception e) {
-            System.out.println("❌ Error loading recent payments: " + e.getMessage());
+            System.out.println(" Error loading recent payments: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=load_failed";
         }
@@ -433,7 +433,7 @@ public class AdminPaymentController {
         try {
             return paymentRecordService.getPaymentStatistics();
         } catch (Exception e) {
-            System.out.println("❌ Error getting payment statistics: " + e.getMessage());
+            System.out.println(" Error getting payment statistics: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
@@ -477,12 +477,12 @@ public class AdminPaymentController {
             model.addAttribute("searchMinAmount", minAmount);
             model.addAttribute("searchMaxAmount", maxAmount);
 
-            System.out.println("✅ Found " + payments.size() + " payments matching search criteria");
+            System.out.println(" Found " + payments.size() + " payments matching search criteria");
 
             return "admin/payments";
 
         } catch (Exception e) {
-            System.out.println("❌ Error searching payments: " + e.getMessage());
+            System.out.println(" Error searching payments: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=search_failed";
         }
@@ -513,12 +513,12 @@ public class AdminPaymentController {
             model.addAttribute("filterPaymentMethod", paymentMethod);
             model.addAttribute("filterDateRange", dateRange);
 
-            System.out.println("✅ Found " + payments.size() + " payments matching filter criteria");
+            System.out.println(" Found " + payments.size() + " payments matching filter criteria");
 
             return "admin/payments";
 
         } catch (Exception e) {
-            System.out.println("❌ Error filtering payments: " + e.getMessage());
+            System.out.println(" Error filtering payments: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=filter_failed";
         }
@@ -545,7 +545,7 @@ public class AdminPaymentController {
                 return "redirect:/admin/payments?error=bulk_update_failed";
             }
         } catch (Exception e) {
-            System.out.println("❌ Error bulk updating payment status: " + e.getMessage());
+            System.out.println(" Error bulk updating payment status: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=bulk_update_failed";
         }
@@ -566,7 +566,7 @@ public class AdminPaymentController {
             int refundedCount = paymentRecordService.bulkRefund(paymentIds, reason);
             return "redirect:/admin/payments?success=bulk_refunded&count=" + refundedCount;
         } catch (Exception e) {
-            System.out.println("❌ Error bulk processing refunds: " + e.getMessage());
+            System.out.println(" Error bulk processing refunds: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=bulk_refund_failed";
         }
@@ -593,7 +593,7 @@ public class AdminPaymentController {
             return "admin/payment-analytics";
 
         } catch (Exception e) {
-            System.out.println("❌ Error getting payment analytics: " + e.getMessage());
+            System.out.println(" Error getting payment analytics: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/payments?error=analytics_failed";
         }
@@ -614,7 +614,7 @@ public class AdminPaymentController {
         try {
             return paymentRecordService.generateRevenueReport(startDate, endDate);
         } catch (Exception e) {
-            System.out.println("❌ Error generating revenue report: " + e.getMessage());
+            System.out.println(" Error generating revenue report: " + e.getMessage());
             e.printStackTrace();
             return "Error generating report: " + e.getMessage();
         }
@@ -637,7 +637,7 @@ public class AdminPaymentController {
         try {
             paymentRecordService.exportPaymentsToCSV(status, startDate, endDate, response);
         } catch (Exception e) {
-            System.out.println("❌ Error exporting payments to CSV: " + e.getMessage());
+            System.out.println(" Error exporting payments to CSV: " + e.getMessage());
             e.printStackTrace();
             response.sendRedirect("/admin/payments?error=export_failed");
         }
@@ -658,7 +658,7 @@ public class AdminPaymentController {
         try {
             paymentRecordService.exportPaymentsToPDF(status, startDate, endDate, response);
         } catch (Exception e) {
-            System.out.println("❌ Error exporting payments to PDF: " + e.getMessage());
+            System.out.println(" Error exporting payments to PDF: " + e.getMessage());
             e.printStackTrace();
             response.sendRedirect("/admin/payments?error=export_failed");
         }
@@ -680,7 +680,7 @@ public class AdminPaymentController {
             boolean isValid = paymentRecordService.validatePayment(id);
             return isValid ? "Payment is valid" : "Payment validation failed";
         } catch (Exception e) {
-            System.out.println("❌ Error validating payment: " + e.getMessage());
+            System.out.println(" Error validating payment: " + e.getMessage());
             e.printStackTrace();
             return "Validation error: " + e.getMessage();
         }
@@ -693,9 +693,9 @@ public class AdminPaymentController {
     public String healthCheck() {
         try {
             long count = paymentRecordService.getTotalPaymentCount();
-            return "✅ Payment Service is healthy. Total payments: " + count;
+            return " Payment Service is healthy. Total payments: " + count;
         } catch (Exception e) {
-            return "❌ Payment Service error: " + e.getMessage();
+            return " Payment Service error: " + e.getMessage();
         }
     }
 }

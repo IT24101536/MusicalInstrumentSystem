@@ -43,7 +43,7 @@ public class CreditCardPaymentStrategy implements PaymentStrategy {
             }
 
             // payment processing
-            System.out.println("💳 Processing credit card payment...");
+            System.out.println(" Processing credit card payment...");
 
             // API call delay
             try {
@@ -55,8 +55,8 @@ public class CreditCardPaymentStrategy implements PaymentStrategy {
             // transaction ID
             String transactionId = "CC_" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
-            System.out.println("✅ Credit card payment processed successfully");
-            System.out.println("📝 Transaction ID: " + transactionId);
+            System.out.println(" Credit card payment processed successfully");
+            System.out.println(" Transaction ID: " + transactionId);
 
             PaymentResult result = PaymentResult.success(transactionId, "Credit card payment processed successfully");
             result.setAmount(order.getTotalAmount());
@@ -64,7 +64,7 @@ public class CreditCardPaymentStrategy implements PaymentStrategy {
             return result;
 
         } catch (Exception e) {
-            System.out.println("❌ Credit card payment failed: " + e.getMessage());
+            System.out.println(" Credit card payment failed: " + e.getMessage());
             return PaymentResult.failure("PROCESSING_ERROR", "Credit card payment failed: " + e.getMessage());
         }
     }
@@ -97,7 +97,7 @@ public class CreditCardPaymentStrategy implements PaymentStrategy {
             cleanCardNumber.equals("4000000000000002") ||
             cleanCardNumber.equals("5555555555554444") ||
             cleanCardNumber.startsWith("4111")) {
-            System.out.println("✅ Test card number accepted: " + cleanCardNumber);
+            System.out.println(" Test card number accepted: " + cleanCardNumber);
             return true;
         }
 
@@ -115,7 +115,7 @@ public class CreditCardPaymentStrategy implements PaymentStrategy {
 
         // Accept any date from 2024
         if (year >= 2024) {
-            System.out.println("✅ Expiry date accepted for testing: " + expiryDate);
+            System.out.println(" Expiry date accepted for testing: " + expiryDate);
             return true;
         }
 

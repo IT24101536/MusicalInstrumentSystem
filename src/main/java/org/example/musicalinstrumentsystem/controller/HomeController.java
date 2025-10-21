@@ -74,7 +74,7 @@ public class HomeController {
 
         // Check if email already exists
         if (userRepository.existsByEmail(email)) {
-            System.out.println("❌ Registration failed: Email already exists");
+            System.out.println(" Registration failed: Email already exists");
             return "redirect:/register?error=email_exists";
         }
 
@@ -84,7 +84,7 @@ public class HomeController {
         user.setAddress(address);
 
         userRepository.save(user);
-        System.out.println("✅ Registration successful for: " + email);
+        System.out.println(" Registration successful for: " + email);
         System.out.println("User ID: " + user.getId());
 
         return "redirect:/login?success=registered";
@@ -110,7 +110,7 @@ public class HomeController {
         User user = userRepository.findByEmail(email).orElse(null);
 
         if (user != null) {
-            System.out.println("✅ User found in database:");
+            System.out.println(" User found in database:");
             System.out.println("   - ID: " + user.getId());
             System.out.println("   - Name: " + user.getName());
             System.out.println("   - DB Role: " + user.getRole());
@@ -123,7 +123,7 @@ public class HomeController {
             System.out.println("   - Role match: " + roleMatch);
 
             if (passwordMatch && roleMatch) {
-                System.out.println("✅ LOGIN SUCCESSFUL! Redirecting to " + role + " dashboard");
+                System.out.println(" LOGIN SUCCESSFUL! Redirecting to " + role + " dashboard");
 
                 // Store user in session
                 sessionService.login(user);
@@ -143,13 +143,13 @@ public class HomeController {
                         return "redirect:/login?error=invalid_role";
                 }
             } else {
-                System.out.println("❌ Login failed - Password or role mismatch");
+                System.out.println(" Login failed - Password or role mismatch");
             }
         } else {
-            System.out.println("❌ User not found in database");
+            System.out.println(" User not found in database");
         }
 
-        System.out.println("❌ LOGIN FAILED!");
+        System.out.println(" LOGIN FAILED!");
         return "redirect:/login?error=invalid_credentials";
     }
 
@@ -159,7 +159,7 @@ public class HomeController {
         System.out.println("Admin key entered: " + adminKey);
 
         if (ADMIN_PASSWORD.equals(adminKey)) {
-            System.out.println("✅ Admin login successful!");
+            System.out.println(" Admin login successful!");
 
 
             User adminUser = new User("admin@musicstore.com", "admin", "Administrator", "ADMIN");
@@ -169,7 +169,7 @@ public class HomeController {
             return "redirect:/admin/dashboard";
         }
 
-        System.out.println("❌ Admin login failed!");
+        System.out.println(" Admin login failed!");
         return "redirect:/login?error=invalid_admin";
     }
 
@@ -219,7 +219,7 @@ public class HomeController {
     @GetMapping("/health")
     @ResponseBody
     public String healthCheck() {
-        return "✅ Musical Instrument System is running! Status: OK";
+        return " Musical Instrument System is running! Status: OK";
     }
 
     //  TEST DASHBOARDS (Remove these after testing)

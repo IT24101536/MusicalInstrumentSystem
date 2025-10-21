@@ -37,18 +37,18 @@ public class CartService {
             Optional<Cart> cartOpt = cartRepository.findByUser(user);
             if (cartOpt.isPresent()) {
                 Cart cart = cartOpt.get();
-                System.out.println("✅ Found existing cart with ID: " + cart.getId());
-                System.out.println("📦 Cart items: " + cart.getCartItems().size());
+                System.out.println(" Found existing cart with ID: " + cart.getId());
+                System.out.println(" Cart items: " + cart.getCartItems().size());
                 return cart;
             } else {
-                System.out.println("🆕 Creating new cart for user");
+                System.out.println(" Creating new cart for user");
                 Cart newCart = new Cart(user);
                 Cart savedCart = cartRepository.save(newCart);
-                System.out.println("✅ Created new cart with ID: " + savedCart.getId());
+                System.out.println(" Created new cart with ID: " + savedCart.getId());
                 return savedCart;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error getting/creating cart: " + e.getMessage());
+            System.out.println(" Error getting/creating cart: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to get or create cart: " + e.getMessage(), e);
         }
@@ -105,7 +105,7 @@ public class CartService {
                 }
 
                 item.setQuantity(newQuantity);
-                System.out.println("📝 Updated existing item quantity to: " + newQuantity);
+                System.out.println(" Updated existing item quantity to: " + newQuantity);
             } else {
                 // Create new cart item with ALL required fields
                 CartItem newItem = new CartItem();
@@ -114,28 +114,28 @@ public class CartService {
                 newItem.setUnitPrice(product.getPrice());
                 newItem.setTotalPrice(product.getPrice() * quantity);
 
-                System.out.println("🆕 Creating new cart item:");
+                System.out.println(" Creating new cart item:");
                 System.out.println("   - Unit Price: " + newItem.getUnitPrice());
                 System.out.println("   - Total Price: " + newItem.getTotalPrice());
                 System.out.println("   - Quantity: " + newItem.getQuantity());
 
                 cart.addCartItem(newItem);
-                System.out.println("✅ Added new item to cart");
+                System.out.println(" Added new item to cart");
             }
 
             // Calculate total
             cart.calculateTotal();
-            System.out.println("💰 Cart total: $" + cart.getTotalAmount());
+            System.out.println(" Cart total: $" + cart.getTotalAmount());
 
             // Save cart
             Cart savedCart = cartRepository.save(cart);
-            System.out.println("💾 Cart saved successfully");
-            System.out.println("📦 Total items in cart: " + savedCart.getCartItems().size());
+            System.out.println(" Cart saved successfully");
+            System.out.println(" Total items in cart: " + savedCart.getCartItems().size());
 
             return savedCart;
 
         } catch (Exception e) {
-            System.out.println("❌ ERROR adding to cart: " + e.getMessage());
+            System.out.println(" ERROR adding to cart: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to add item to cart: " + e.getMessage(), e);
         }
@@ -176,16 +176,16 @@ public class CartService {
                     .findFirst()
                     .ifPresent(item -> {
                         item.setQuantity(quantity);
-                        System.out.println("✅ Updated quantity for " + product.getName() + " to " + quantity);
+                        System.out.println(" Updated quantity for " + product.getName() + " to " + quantity);
                     });
 
             cart.calculateTotal();
             Cart savedCart = cartRepository.save(cart);
-            System.out.println("💰 Updated cart total: $" + savedCart.getTotalAmount());
+            System.out.println(" Updated cart total: $" + savedCart.getTotalAmount());
 
             return savedCart;
         } catch (Exception e) {
-            System.out.println("❌ Error updating cart quantity: " + e.getMessage());
+            System.out.println(" Error updating cart quantity: " + e.getMessage());
             throw new RuntimeException("Failed to update cart quantity: " + e.getMessage(), e);
         }
     }
@@ -203,17 +203,17 @@ public class CartService {
             );
 
             if (removed) {
-                System.out.println("✅ Removed product from cart");
+                System.out.println(" Removed product from cart");
                 cart.calculateTotal();
                 Cart savedCart = cartRepository.save(cart);
-                System.out.println("💰 Updated cart total: $" + savedCart.getTotalAmount());
+                System.out.println(" Updated cart total: $" + savedCart.getTotalAmount());
                 return savedCart;
             } else {
-                System.out.println("⚠️ Product not found in cart");
+                System.out.println("⚠ Product not found in cart");
                 return cart;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error removing from cart: " + e.getMessage());
+            System.out.println(" Error removing from cart: " + e.getMessage());
             throw new RuntimeException("Failed to remove item from cart: " + e.getMessage(), e);
         }
     }
@@ -227,11 +227,11 @@ public class CartService {
             cart.clearCart();
 
             Cart savedCart = cartRepository.save(cart);
-            System.out.println("✅ Cart cleared successfully");
+            System.out.println(" Cart cleared successfully");
 
             return savedCart;
         } catch (Exception e) {
-            System.out.println("❌ Error clearing cart: " + e.getMessage());
+            System.out.println(" Error clearing cart: " + e.getMessage());
             throw new RuntimeException("Failed to clear cart: " + e.getMessage(), e);
         }
     }
@@ -243,7 +243,7 @@ public class CartService {
             System.out.println("🛒 Cart item count for " + user.getEmail() + ": " + count);
             return count;
         } catch (Exception e) {
-            System.out.println("❌ Error getting cart count: " + e.getMessage());
+            System.out.println(" Error getting cart count: " + e.getMessage());
             return 0;
         }
     }
@@ -253,10 +253,10 @@ public class CartService {
         try {
             Cart cart = getOrCreateCart(user);
             double total = cart.getTotalAmount() != null ? cart.getTotalAmount() : 0.0;
-            System.out.println("💰 Cart total for " + user.getEmail() + ": $" + total);
+            System.out.println(" Cart total for " + user.getEmail() + ": $" + total);
             return total;
         } catch (Exception e) {
-            System.out.println("❌ Error getting cart total: " + e.getMessage());
+            System.out.println(" Error getting cart total: " + e.getMessage());
             return 0.0;
         }
     }
@@ -274,7 +274,7 @@ public class CartService {
 
             return item;
         } catch (Exception e) {
-            System.out.println("❌ Error getting cart item: " + e.getMessage());
+            System.out.println(" Error getting cart item: " + e.getMessage());
             return Optional.empty();
         }
     }
@@ -282,7 +282,7 @@ public class CartService {
 
     public boolean isProductInCart(User user, Long productId) {
         boolean inCart = getCartItemByProduct(user, productId).isPresent();
-        System.out.println("🔍 Product " + productId + " in cart: " + inCart);
+        System.out.println(" Product " + productId + " in cart: " + inCart);
         return inCart;
     }
 
@@ -296,11 +296,11 @@ public class CartService {
             summary.put("cartItems", cart.getCartItems().size());
             summary.put("isEmpty", cart.isEmpty());
 
-            System.out.println("📊 Cart summary for " + user.getEmail() + ": " + summary);
+            System.out.println(" Cart summary for " + user.getEmail() + ": " + summary);
 
             return summary;
         } catch (Exception e) {
-            System.out.println("❌ Error getting cart summary: " + e.getMessage());
+            System.out.println(" Error getting cart summary: " + e.getMessage());
             return Map.of(
                     "itemCount", 0,
                     "totalAmount", 0.0,
@@ -317,7 +317,7 @@ public class CartService {
             Cart cart = getOrCreateCart(user);
 
             if (cart.isEmpty()) {
-                System.out.println("❌ Cart is empty");
+                System.out.println(" Cart is empty");
                 return false;
             }
 
@@ -325,16 +325,16 @@ public class CartService {
             for (CartItem item : cart.getCartItems()) {
                 Product product = item.getProduct();
                 if (product.getStockQuantity() < item.getQuantity()) {
-                    System.out.println("❌ Insufficient stock for: " + product.getName() +
+                    System.out.println(" Insufficient stock for: " + product.getName() +
                             " (Available: " + product.getStockQuantity() + ", Needed: " + item.getQuantity() + ")");
                     return false;
                 }
             }
 
-            System.out.println("✅ Cart validated successfully for checkout");
+            System.out.println(" Cart validated successfully for checkout");
             return true;
         } catch (Exception e) {
-            System.out.println("❌ Error validating cart: " + e.getMessage());
+            System.out.println(" Error validating cart: " + e.getMessage());
             return false;
         }
     }
@@ -387,12 +387,12 @@ public class CartService {
             cart.calculateTotal();
             Cart savedCart = cartRepository.save(cart);
 
-            System.out.println("✅ Cart refreshed successfully");
-            System.out.println("💰 New total: $" + savedCart.getTotalAmount());
+            System.out.println(" Cart refreshed successfully");
+            System.out.println(" New total: $" + savedCart.getTotalAmount());
 
             return savedCart;
         } catch (Exception e) {
-            System.out.println("❌ Error refreshing cart: " + e.getMessage());
+            System.out.println(" Error refreshing cart: " + e.getMessage());
             throw new RuntimeException("Failed to refresh cart: " + e.getMessage(), e);
         }
     }
@@ -406,10 +406,10 @@ public class CartService {
                 addToCart(user, guestItem.getProduct().getId(), guestItem.getQuantity());
             }
 
-            System.out.println("✅ Carts merged successfully");
+            System.out.println(" Carts merged successfully");
             return userCart;
         } catch (Exception e) {
-            System.out.println("❌ Error merging carts: " + e.getMessage());
+            System.out.println(" Error merging carts: " + e.getMessage());
             throw new RuntimeException("Failed to merge carts: " + e.getMessage(), e);
         }
     }
@@ -431,7 +431,7 @@ public class CartService {
             }
             System.out.println("====================");
         } catch (Exception e) {
-            System.out.println("❌ Error printing cart details: " + e.getMessage());
+            System.out.println(" Error printing cart details: " + e.getMessage());
         }
     }
 }

@@ -44,17 +44,17 @@ public class StockManagementController {
         System.out.println("=== ACCESSING STOCK MANAGER DASHBOARD ===");
 
         if (!sessionService.isLoggedIn()) {
-            System.out.println("❌ Access denied: Not logged in");
+            System.out.println(" Access denied: Not logged in");
             return "redirect:/login?error=access_denied";
         }
 
         if (!"STOCK_MANAGER".equals(sessionService.getUserRole())) {
-            System.out.println("❌ Access denied: User role is " + sessionService.getUserRole() + ", expected STOCK_MANAGER");
+            System.out.println(" Access denied: User role is " + sessionService.getUserRole() + ", expected STOCK_MANAGER");
             return "redirect:/login?error=access_denied";
         }
 
         User currentUser = sessionService.getCurrentUser();
-        System.out.println("✅ Access granted for stock manager: " + currentUser.getEmail());
+        System.out.println(" Access granted for stock manager: " + currentUser.getEmail());
 
         try {
             // Add stock management statistics
@@ -79,7 +79,7 @@ public class StockManagementController {
             return "stock-manager/dashboard";
 
         } catch (Exception e) {
-            System.out.println("❌ ERROR in stockManagerDashboard: " + e.getMessage());
+            System.out.println(" ERROR in stockManagerDashboard: " + e.getMessage());
             e.printStackTrace();
             model.addAttribute("error", "Failed to load dashboard data");
             return "stock-manager/dashboard";
@@ -135,7 +135,7 @@ public class StockManagementController {
             return "stock-manager/products";
 
         } catch (Exception e) {
-            System.out.println("❌ ERROR in viewAllProducts: " + e.getMessage());
+            System.out.println(" ERROR in viewAllProducts: " + e.getMessage());
             e.printStackTrace();
 
             // Return safe default values on error
@@ -184,7 +184,7 @@ public class StockManagementController {
             return "stock-manager/add-product";
 
         } catch (Exception e) {
-            System.out.println("❌ ERROR in showAddProductForm: " + e.getMessage());
+            System.out.println(" ERROR in showAddProductForm: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/stock-manager/products?error=server_error";
         }
@@ -214,24 +214,24 @@ public class StockManagementController {
         try {
             // Validate input
             if (price <= 0) {
-                System.out.println("❌ Invalid price: " + price);
+                System.out.println(" Invalid price: " + price);
                 return "redirect:/stock-manager/products/new?error=invalid_price";
             }
 
             if (stockQuantity < 0) {
-                System.out.println("❌ Invalid stock quantity: " + stockQuantity);
+                System.out.println(" Invalid stock quantity: " + stockQuantity);
                 return "redirect:/stock-manager/products/new?error=invalid_stock";
             }
 
             if (minStockLevel < 1) {
-                System.out.println("❌ Invalid minimum stock level: " + minStockLevel);
+                System.out.println(" Invalid minimum stock level: " + minStockLevel);
                 return "redirect:/stock-manager/products/new?error=invalid_min_stock";
             }
 
             // Find the seller
             Optional<User> sellerOpt = userRepository.findById(sellerId);
             if (sellerOpt.isEmpty() || !"SELLER".equals(sellerOpt.get().getRole())) {
-                System.out.println("❌ Invalid seller ID: " + sellerId);
+                System.out.println(" Invalid seller ID: " + sellerId);
                 return "redirect:/stock-manager/products/new?error=invalid_seller";
             }
 
@@ -239,7 +239,7 @@ public class StockManagementController {
 
             // Check if product name already exists for this seller
             if (productService.productNameExists(name, seller)) {
-                System.out.println("❌ Product name already exists for seller: " + name);
+                System.out.println(" Product name already exists for seller: " + name);
                 return "redirect:/stock-manager/products/new?error=product_exists";
             }
 
@@ -259,25 +259,25 @@ public class StockManagementController {
                 if (imageFile != null && !imageFile.isEmpty()) {
                     String savedFilePath = fileStorageService.saveFile(imageFile);
                     product.setImageUrl(savedFilePath);
-                    System.out.println("✅ Image uploaded: " + savedFilePath);
+                    System.out.println(" Image uploaded: " + savedFilePath);
                 }
             } catch (IOException e) {
-                System.err.println("❌ Failed to upload image: " + e.getMessage());
+                System.err.println(" Failed to upload image: " + e.getMessage());
                 return "redirect:/stock-manager/products/new?error=upload_failed";
             }
 
             Product savedProduct = productService.createProduct(product);
 
             if (savedProduct != null) {
-                System.out.println("✅ Stock Manager created new product: " + savedProduct.getName() + " for seller: " + seller.getName());
+                System.out.println(" Stock Manager created new product: " + savedProduct.getName() + " for seller: " + seller.getName());
                 return "redirect:/stock-manager/products?success=product_created";
             } else {
-                System.out.println("❌ Failed to create product");
+                System.out.println(" Failed to create product");
                 return "redirect:/stock-manager/products/new?error=create_failed";
             }
 
         } catch (Exception e) {
-            System.out.println("❌ ERROR in createProduct: " + e.getMessage());
+            System.out.println(" ERROR in createProduct: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/stock-manager/products/new?error=server_error";
         }
@@ -304,7 +304,7 @@ public class StockManagementController {
             return "stock-manager/edit-product-stock";
 
         } catch (Exception e) {
-            System.out.println("❌ ERROR in editProductStock: " + e.getMessage());
+            System.out.println(" ERROR in editProductStock: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/stock-manager/products?error=server_error";
         }
@@ -339,7 +339,7 @@ public class StockManagementController {
             Product updatedProduct = productService.updateProduct(product);
 
             if (updatedProduct != null) {
-                System.out.println("✅ Stock Manager updated stock for: " + product.getName());
+                System.out.println(" Stock Manager updated stock for: " + product.getName());
 
                 final int LOW_STOCK_THRESHOLD = 5;
                 
@@ -352,38 +352,38 @@ public class StockManagementController {
                         if (stockQuantity == 0) {
                             // Send critical out of stock alert
                             emailService.sendOutOfStockAlert(updatedProduct);
-                            System.out.println("✅ Out of stock alert email sent to admin");
+                            System.out.println(" Out of stock alert email sent to admin");
                         } else {
                             // Send low stock alert
                             emailService.sendLowStockAlert(updatedProduct, previousStock, stockQuantity);
-                            System.out.println("✅ Low stock alert email sent to admin");
+                            System.out.println(" Low stock alert email sent to admin");
                         }
                     } catch (Exception emailException) {
-                        System.err.println("⚠️ Failed to send email alert: " + emailException.getMessage());
+                        System.err.println("⚠ Failed to send email alert: " + emailException.getMessage());
                         emailException.printStackTrace();
 
                     }
                 }
 
                 else if (previousStock > 0 && stockQuantity == 0 && previousStock <= LOW_STOCK_THRESHOLD) {
-                    System.out.println("📧 Stock depleted! Sending out of stock alert...");
+                    System.out.println(" Stock depleted! Sending out of stock alert...");
                     try {
                         emailService.sendOutOfStockAlert(updatedProduct);
-                        System.out.println("✅ Out of stock alert email sent to admin");
+                        System.out.println(" Out of stock alert email sent to admin");
                     } catch (Exception emailException) {
-                        System.err.println("⚠️ Failed to send email alert: " + emailException.getMessage());
+                        System.err.println(" Failed to send email alert: " + emailException.getMessage());
                         emailException.printStackTrace();
                     }
                 }
                 
                 return "redirect:/stock-manager/products?success=stock_updated";
             } else {
-                System.out.println("❌ Failed to update stock for: " + product.getName());
+                System.out.println(" Failed to update stock for: " + product.getName());
                 return "redirect:/stock-manager/products?error=update_failed";
             }
 
         } catch (Exception e) {
-            System.out.println("❌ ERROR in updateProductStock: " + e.getMessage());
+            System.out.println(" ERROR in updateProductStock: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/stock-manager/products?error=update_failed";
         }
@@ -411,7 +411,7 @@ public class StockManagementController {
             return "stock-manager/alerts";
 
         } catch (Exception e) {
-            System.out.println("❌ ERROR in viewLowStockAlerts: " + e.getMessage());
+            System.out.println(" ERROR in viewLowStockAlerts: " + e.getMessage());
             e.printStackTrace();
 
             model.addAttribute("lowStockProducts", List.of());
@@ -459,7 +459,7 @@ public class StockManagementController {
             return "stock-manager/reports";
 
         } catch (Exception e) {
-            System.out.println("❌ ERROR in stockReports: " + e.getMessage());
+            System.out.println(" ERROR in stockReports: " + e.getMessage());
             e.printStackTrace();
 
             model.addAttribute("totalProducts", 0);

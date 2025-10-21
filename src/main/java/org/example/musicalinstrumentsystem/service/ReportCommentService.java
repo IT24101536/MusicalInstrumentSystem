@@ -32,11 +32,11 @@ public class ReportCommentService {
             comment.setCreatedAt(LocalDateTime.now());
 
             ReportComment savedComment = reportCommentRepository.save(comment);
-            System.out.println("✅ Comment created with ID: " + savedComment.getId());
+            System.out.println(" Comment created with ID: " + savedComment.getId());
             return savedComment;
 
         } catch (Exception e) {
-            System.out.println("❌ Error creating comment: " + e.getMessage());
+            System.out.println(" Error creating comment: " + e.getMessage());
             throw new RuntimeException("Failed to create comment", e);
         }
     }
@@ -45,10 +45,10 @@ public class ReportCommentService {
         try {
             System.out.println("=== FETCHING COMMENTS FOR REPORT: " + report.getId() + " ===");
             List<ReportComment> comments = reportCommentRepository.findByFinancialReportOrderByCreatedAtDesc(report);
-            System.out.println("✅ Found " + comments.size() + " comments");
+            System.out.println(" Found " + comments.size() + " comments");
             return comments;
         } catch (Exception e) {
-            System.out.println("❌ Error fetching comments: " + e.getMessage());
+            System.out.println(" Error fetching comments: " + e.getMessage());
             return List.of();
         }
     }
@@ -58,7 +58,7 @@ public class ReportCommentService {
             System.out.println("=== FETCHING COMMENT BY ID: " + id + " ===");
             return reportCommentRepository.findById(id);
         } catch (Exception e) {
-            System.out.println("❌ Error fetching comment: " + e.getMessage());
+            System.out.println(" Error fetching comment: " + e.getMessage());
             return Optional.empty();
         }
     }
@@ -68,7 +68,7 @@ public class ReportCommentService {
             System.out.println("=== FETCHING COMMENTS BY USER: " + user.getEmail() + " ===");
             return reportCommentRepository.findByUserOrderByCreatedAtDesc(user);
         } catch (Exception e) {
-            System.out.println("❌ Error fetching user comments: " + e.getMessage());
+            System.out.println(" Error fetching user comments: " + e.getMessage());
             return List.of();
         }
     }
@@ -78,7 +78,7 @@ public class ReportCommentService {
             System.out.println("=== FETCHING COMMENTS BY TYPE: " + commentType + " ===");
             return reportCommentRepository.findByCommentTypeOrderByCreatedAtDesc(commentType);
         } catch (Exception e) {
-            System.out.println("❌ Error fetching comments by type: " + e.getMessage());
+            System.out.println(" Error fetching comments by type: " + e.getMessage());
             return List.of();
         }
     }
@@ -98,14 +98,14 @@ public class ReportCommentService {
                 comment.setUpdatedAt(LocalDateTime.now());
 
                 ReportComment updated = reportCommentRepository.save(comment);
-                System.out.println("✅ Comment updated successfully");
+                System.out.println(" Comment updated successfully");
                 return updated;
             } else {
-                System.out.println("❌ Comment not found");
+                System.out.println(" Comment not found");
                 return null;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error updating comment: " + e.getMessage());
+            System.out.println(" Error updating comment: " + e.getMessage());
             throw new RuntimeException("Failed to update comment", e);
         }
     }
@@ -115,14 +115,14 @@ public class ReportCommentService {
             System.out.println("=== DELETING COMMENT ID: " + id + " ===");
             if (reportCommentRepository.existsById(id)) {
                 reportCommentRepository.deleteById(id);
-                System.out.println("✅ Comment deleted successfully");
+                System.out.println(" Comment deleted successfully");
                 return true;
             } else {
-                System.out.println("❌ Comment not found");
+                System.out.println(" Comment not found");
                 return false;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting comment: " + e.getMessage());
+            System.out.println(" Error deleting comment: " + e.getMessage());
             return false;
         }
     }

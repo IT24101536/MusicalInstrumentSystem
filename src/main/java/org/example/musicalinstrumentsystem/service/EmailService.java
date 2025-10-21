@@ -34,16 +34,16 @@ public class EmailService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(adminEmail);
-            message.setSubject("⚠️ Low Stock Alert - " + product.getName());
+            message.setSubject(" Low Stock Alert - " + product.getName());
             
             String emailBody = buildLowStockEmailBody(product, previousStock, newStock);
             message.setText(emailBody);
 
             mailSender.send(message);
-            System.out.println("✅ Low stock alert email sent successfully");
+            System.out.println(" Low stock alert email sent successfully");
 
         } catch (Exception e) {
-            System.err.println("❌ Failed to send low stock alert email: " + e.getMessage());
+            System.err.println(" Failed to send low stock alert email: " + e.getMessage());
             e.printStackTrace();
             // Don't throw exception - we don't want email failure to block stock updates
         }
@@ -77,10 +77,10 @@ public class EmailService {
         body.append("Stock Change: ").append(newStock - previousStock).append(" units\n\n");
 
         if (newStock == 0) {
-            body.append("⛔ STATUS: OUT OF STOCK - CRITICAL!\n");
+            body.append(" STATUS: OUT OF STOCK - CRITICAL!\n");
             body.append("This product is completely out of stock and unavailable for purchase.\n\n");
         } else if (newStock <= 5) {
-            body.append("⚠️ STATUS: LOW STOCK - ACTION REQUIRED!\n");
+            body.append("⚠ STATUS: LOW STOCK - ACTION REQUIRED!\n");
             body.append("This product is running critically low and needs immediate restocking.\n\n");
         }
         
@@ -120,16 +120,16 @@ public class EmailService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(adminEmail);
-            message.setSubject("⛔ OUT OF STOCK - " + product.getName());
+            message.setSubject(" OUT OF STOCK - " + product.getName());
             
             String emailBody = buildOutOfStockEmailBody(product);
             message.setText(emailBody);
 
             mailSender.send(message);
-            System.out.println("✅ Out of stock alert email sent successfully");
+            System.out.println(" Out of stock alert email sent successfully");
 
         } catch (Exception e) {
-            System.err.println("❌ Failed to send out of stock alert email: " + e.getMessage());
+            System.err.println(" Failed to send out of stock alert email: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -140,7 +140,7 @@ public class EmailService {
         String timestamp = LocalDateTime.now().format(formatter);
 
         StringBuilder body = new StringBuilder();
-        body.append("⛔ CRITICAL: PRODUCT OUT OF STOCK\n");
+        body.append(" CRITICAL: PRODUCT OUT OF STOCK\n");
         body.append("=====================================\n\n");
         
         body.append("Dear Administrator,\n\n");

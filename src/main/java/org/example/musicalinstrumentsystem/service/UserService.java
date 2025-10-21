@@ -64,7 +64,7 @@ public class UserService {
 
             Optional<User> userOpt = userRepository.findById(userId);
             if (userOpt.isEmpty()) {
-                System.out.println("❌ User not found with ID: " + userId);
+                System.out.println(" User not found with ID: " + userId);
                 return false;
             }
 
@@ -81,12 +81,12 @@ public class UserService {
                 case "ADMIN":
                     return deleteStaffUser(user);
                 default:
-                    System.out.println("❌ Unknown user role: " + user.getRole());
+                    System.out.println(" Unknown user role: " + user.getRole());
                     return false;
             }
 
         } catch (Exception e) {
-            System.out.println("❌ Error in safeDeleteUser: " + e.getMessage());
+            System.out.println(" Error in safeDeleteUser: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -95,18 +95,18 @@ public class UserService {
     // Delete buyer user
     private boolean deleteBuyerUser(User user) {
         try {
-            System.out.println("🛒 Deleting buyer user data...");
+            System.out.println(" Deleting buyer user data...");
 
             deleteUserCartData(user);
 
             deleteUserOrderData(user);
 
             userRepository.delete(user);
-            System.out.println("✅ Buyer user deleted successfully: " + user.getEmail());
+            System.out.println(" Buyer user deleted successfully: " + user.getEmail());
             return true;
 
         } catch (Exception e) {
-            System.out.println("❌ Error deleting buyer user: " + e.getMessage());
+            System.out.println(" Error deleting buyer user: " + e.getMessage());
             return false;
         }
     }
@@ -114,7 +114,7 @@ public class UserService {
     // Delete seller user
     private boolean deleteSellerUser(User user) {
         try {
-            System.out.println("🏪 Deleting seller user data...");
+            System.out.println(" Deleting seller user data...");
 
 
             transferSellerProducts(user);
@@ -123,11 +123,11 @@ public class UserService {
 
 
             userRepository.delete(user);
-            System.out.println("✅ Seller user deleted successfully: " + user.getEmail());
+            System.out.println(" Seller user deleted successfully: " + user.getEmail());
             return true;
 
         } catch (Exception e) {
-            System.out.println("❌ Error deleting seller user: " + e.getMessage());
+            System.out.println(" Error deleting seller user: " + e.getMessage());
             return false;
         }
     }
@@ -135,17 +135,17 @@ public class UserService {
     // Delete staff user
     private boolean deleteStaffUser(User user) {
         try {
-            System.out.println("👔 Deleting staff user data...");
+            System.out.println(" Deleting staff user data...");
 
             deleteUserCartData(user);
 
             // delete the user
             userRepository.delete(user);
-            System.out.println("✅ Staff user deleted successfully: " + user.getEmail());
+            System.out.println(" Staff user deleted successfully: " + user.getEmail());
             return true;
 
         } catch (Exception e) {
-            System.out.println("❌ Error deleting staff user: " + e.getMessage());
+            System.out.println(" Error deleting staff user: " + e.getMessage());
             return false;
         }
     }
@@ -155,17 +155,17 @@ public class UserService {
             Optional<Cart> userCart = cartRepository.findByUser(user);
             if (userCart.isPresent()) {
                 Cart cart = userCart.get();
-                System.out.println("🗑️ Deleting cart items for user: " + user.getEmail());
+                System.out.println("🗑 Deleting cart items for user: " + user.getEmail());
 
                 // Delete cart items first
                 cartItemRepository.deleteAll(cart.getCartItems());
 
                 // Then delete the cart
                 cartRepository.delete(cart);
-                System.out.println("✅ Cart data deleted for user: " + user.getEmail());
+                System.out.println(" Cart data deleted for user: " + user.getEmail());
             }
         } catch (Exception e) {
-            System.out.println("⚠️ No cart data to delete for user: " + user.getEmail());
+            System.out.println(" No cart data to delete for user: " + user.getEmail());
         }
     }
 
@@ -173,7 +173,7 @@ public class UserService {
         try {
             List<Order> userOrders = orderRepository.findByBuyer(user);
             if (!userOrders.isEmpty()) {
-                System.out.println("📦 Deleting " + userOrders.size() + " orders for user: " + user.getEmail());
+                System.out.println(" Deleting " + userOrders.size() + " orders for user: " + user.getEmail());
 
                 for (Order order : userOrders) {
                     // Delete order items first
@@ -181,10 +181,10 @@ public class UserService {
                     // Then delete the order
                     orderRepository.delete(order);
                 }
-                System.out.println("✅ Order data deleted for user: " + user.getEmail());
+                System.out.println(" Order data deleted for user: " + user.getEmail());
             }
         } catch (Exception e) {
-            System.out.println("⚠️ No order data to delete for user: " + user.getEmail());
+            System.out.println(" No order data to delete for user: " + user.getEmail());
         }
     }
 
@@ -192,7 +192,7 @@ public class UserService {
         try {
             List<Product> sellerProducts = productRepository.findBySeller(seller);
             if (!sellerProducts.isEmpty()) {
-                System.out.println("🔄 Transferring " + sellerProducts.size() + " products from seller: " + seller.getEmail());
+                System.out.println(" Transferring " + sellerProducts.size() + " products from seller: " + seller.getEmail());
 
                 Optional<User> defaultAdmin = userRepository.findAll().stream()
                         .filter(u -> "ADMIN".equals(u.getRole()) && !u.getId().equals(seller.getId()))
@@ -204,14 +204,14 @@ public class UserService {
                         product.setSeller(newOwner);
                         productRepository.save(product);
                     }
-                    System.out.println("✅ Products transferred to: " + newOwner.getEmail());
+                    System.out.println(" Products transferred to: " + newOwner.getEmail());
                 } else {
-                    System.out.println("❌ No admin found, deleting products instead");
+                    System.out.println(" No admin found, deleting products instead");
                     productRepository.deleteAll(sellerProducts);
                 }
             }
         } catch (Exception e) {
-            System.out.println("❌ Error transferring products: " + e.getMessage());
+            System.out.println(" Error transferring products: " + e.getMessage());
         }
     }
 

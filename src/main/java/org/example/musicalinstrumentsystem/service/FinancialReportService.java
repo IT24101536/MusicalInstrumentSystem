@@ -81,10 +81,10 @@ public class FinancialReportService {
         try {
             System.out.println("=== FETCHING ALL FINANCIAL REPORTS ===");
             List<FinancialReport> reports = financialReportRepository.findAllByOrderByCreatedAtDesc();
-            System.out.println("✅ Found " + reports.size() + " reports");
+            System.out.println(" Found " + reports.size() + " reports");
             return reports;
         } catch (Exception e) {
-            System.out.println("❌ Error fetching reports: " + e.getMessage());
+            System.out.println(" Error fetching reports: " + e.getMessage());
             return List.of();
         }
     }
@@ -95,13 +95,13 @@ public class FinancialReportService {
             System.out.println("=== FETCHING REPORT BY ID: " + id + " ===");
             Optional<FinancialReport> report = financialReportRepository.findById(id);
             if (report.isPresent()) {
-                System.out.println("✅ Report found: " + report.get().getReportName());
+                System.out.println(" Report found: " + report.get().getReportName());
             } else {
-                System.out.println("❌ Report not found");
+                System.out.println(" Report not found");
             }
             return report;
         } catch (Exception e) {
-            System.out.println("❌ Error fetching report: " + e.getMessage());
+            System.out.println(" Error fetching report: " + e.getMessage());
             return Optional.empty();
         }
     }
@@ -111,10 +111,10 @@ public class FinancialReportService {
         try {
             System.out.println("=== FETCHING REPORTS BY USER: " + user.getEmail() + " ===");
             List<FinancialReport> reports = financialReportRepository.findByCreatedByOrderByCreatedAtDesc(user);
-            System.out.println("✅ Found " + reports.size() + " reports for user");
+            System.out.println(" Found " + reports.size() + " reports for user");
             return reports;
         } catch (Exception e) {
-            System.out.println("❌ Error fetching user reports: " + e.getMessage());
+            System.out.println(" Error fetching user reports: " + e.getMessage());
             return List.of();
         }
     }
@@ -124,10 +124,10 @@ public class FinancialReportService {
         try {
             System.out.println("=== FETCHING REPORTS BY PERIOD: " + period + " ===");
             List<FinancialReport> reports = financialReportRepository.findByReportPeriodOrderByCreatedAtDesc(period);
-            System.out.println("✅ Found " + reports.size() + " reports for period");
+            System.out.println(" Found " + reports.size() + " reports for period");
             return reports;
         } catch (Exception e) {
-            System.out.println("❌ Error fetching period reports: " + e.getMessage());
+            System.out.println(" Error fetching period reports: " + e.getMessage());
             return List.of();
         }
     }
@@ -147,14 +147,14 @@ public class FinancialReportService {
                     report.setNotes(notes);
                 }
                 FinancialReport updated = financialReportRepository.save(report);
-                System.out.println("✅ Report updated successfully");
+                System.out.println(" Report updated successfully");
                 return updated;
             } else {
-                System.out.println("❌ Report not found");
+                System.out.println(" Report not found");
                 return null;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error updating report: " + e.getMessage());
+            System.out.println(" Error updating report: " + e.getMessage());
             throw new RuntimeException("Failed to update report", e);
         }
     }
@@ -165,14 +165,14 @@ public class FinancialReportService {
             System.out.println("=== DELETING REPORT ID: " + id + " ===");
             if (financialReportRepository.existsById(id)) {
                 financialReportRepository.deleteById(id);
-                System.out.println("✅ Report deleted successfully");
+                System.out.println(" Report deleted successfully");
                 return true;
             } else {
-                System.out.println("❌ Report not found");
+                System.out.println(" Report not found");
                 return false;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting report: " + e.getMessage());
+            System.out.println(" Error deleting report: " + e.getMessage());
             return false;
         }
     }

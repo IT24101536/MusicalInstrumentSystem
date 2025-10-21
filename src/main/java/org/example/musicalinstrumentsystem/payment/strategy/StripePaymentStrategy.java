@@ -32,7 +32,7 @@ public class StripePaymentStrategy implements PaymentStrategy {
             }
 
             // Stripe payment processing
-            System.out.println("💳 Processing Stripe payment...");
+            System.out.println(" Processing Stripe payment...");
 
             // API call delay
             try {
@@ -48,9 +48,9 @@ public class StripePaymentStrategy implements PaymentStrategy {
             // transaction ID
             String transactionId = "ST_" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
-            System.out.println("✅ Stripe payment processed successfully");
-            System.out.println("📝 Transaction ID: " + transactionId);
-            System.out.println("💳 Payment Method: " + (paymentMethodId != null ? "PaymentMethod" : "Token"));
+            System.out.println(" Stripe payment processed successfully");
+            System.out.println(" Transaction ID: " + transactionId);
+            System.out.println(" Payment Method: " + (paymentMethodId != null ? "PaymentMethod" : "Token"));
 
             PaymentResult result = PaymentResult.success(transactionId, "Stripe payment processed successfully");
             result.setAmount(order.getTotalAmount());
@@ -58,7 +58,7 @@ public class StripePaymentStrategy implements PaymentStrategy {
             return result;
 
         } catch (Exception e) {
-            System.out.println("❌ Stripe payment failed: " + e.getMessage());
+            System.out.println(" Stripe payment failed: " + e.getMessage());
             return PaymentResult.failure("PROCESSING_ERROR", "Stripe payment failed: " + e.getMessage());
         }
     }

@@ -42,7 +42,7 @@ public class CartController {
 
             return "buyer/cart";
         } catch (Exception e) {
-            System.out.println("❌ Error viewing cart: " + e.getMessage());
+            System.out.println(" Error viewing cart: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/buyer/products?error=cart_error";
         }
@@ -65,12 +65,12 @@ public class CartController {
             System.out.println("User: " + currentUser.getEmail());
 
             cartService.addToCart(currentUser, productId, quantity);
-            System.out.println("✅ Successfully added to cart");
+            System.out.println(" Successfully added to cart");
 
             return "redirect:/buyer/cart?success=added_to_cart";
 
         } catch (Exception e) {
-            System.out.println("❌ Error adding to cart: " + e.getMessage());
+            System.out.println(" Error adding to cart: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/buyer/products?error=cart_error&message=" + e.getMessage();
         }
@@ -89,7 +89,7 @@ public class CartController {
             cartService.updateCartItemQuantity(currentUser, productId, quantity);
             return "redirect:/buyer/cart?success=cart_updated";
         } catch (Exception e) {
-            System.out.println("❌ Error updating cart: " + e.getMessage());
+            System.out.println(" Error updating cart: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/buyer/cart?error=update_failed";
         }
@@ -107,7 +107,7 @@ public class CartController {
             cartService.removeFromCart(currentUser, productId);
             return "redirect:/buyer/cart?success=item_removed";
         } catch (Exception e) {
-            System.out.println("❌ Error removing from cart: " + e.getMessage());
+            System.out.println(" Error removing from cart: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/buyer/cart?error=remove_failed";
         }
@@ -125,7 +125,7 @@ public class CartController {
             cartService.clearCart(currentUser);
             return "redirect:/buyer/cart?success=cart_cleared";
         } catch (Exception e) {
-            System.out.println("❌ Error clearing cart: " + e.getMessage());
+            System.out.println(" Error clearing cart: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/buyer/cart?error=clear_failed";
         }
@@ -143,7 +143,7 @@ public class CartController {
             User currentUser = sessionService.getCurrentUser();
             return cartService.getCartItemCount(currentUser);
         } catch (Exception e) {
-            System.out.println("❌ Error getting cart count: " + e.getMessage());
+            System.out.println(" Error getting cart count: " + e.getMessage());
             return 0;
         }
     }

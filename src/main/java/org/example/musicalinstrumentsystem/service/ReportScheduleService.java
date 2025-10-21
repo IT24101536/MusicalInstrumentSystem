@@ -45,11 +45,11 @@ public class ReportScheduleService {
             schedule.setNextExecution(calculateNextExecution(frequency, dayOfWeek, dayOfMonth));
 
             ReportSchedule savedSchedule = reportScheduleRepository.save(schedule);
-            System.out.println("✅ Schedule created with ID: " + savedSchedule.getId());
+            System.out.println(" Schedule created with ID: " + savedSchedule.getId());
             return savedSchedule;
 
         } catch (Exception e) {
-            System.out.println("❌ Error creating schedule: " + e.getMessage());
+            System.out.println(" Error creating schedule: " + e.getMessage());
             throw new RuntimeException("Failed to create schedule", e);
         }
     }
@@ -58,10 +58,10 @@ public class ReportScheduleService {
         try {
             System.out.println("=== FETCHING ALL SCHEDULES ===");
             List<ReportSchedule> schedules = reportScheduleRepository.findAll();
-            System.out.println("✅ Found " + schedules.size() + " schedules");
+            System.out.println(" Found " + schedules.size() + " schedules");
             return schedules;
         } catch (Exception e) {
-            System.out.println("❌ Error fetching schedules: " + e.getMessage());
+            System.out.println(" Error fetching schedules: " + e.getMessage());
             return List.of();
         }
     }
@@ -71,7 +71,7 @@ public class ReportScheduleService {
             System.out.println("=== FETCHING ACTIVE SCHEDULES ===");
             return reportScheduleRepository.findByIsActiveTrueOrderByNextExecutionAsc();
         } catch (Exception e) {
-            System.out.println("❌ Error fetching active schedules: " + e.getMessage());
+            System.out.println(" Error fetching active schedules: " + e.getMessage());
             return List.of();
         }
     }
@@ -81,7 +81,7 @@ public class ReportScheduleService {
             System.out.println("=== FETCHING SCHEDULE BY ID: " + id + " ===");
             return reportScheduleRepository.findById(id);
         } catch (Exception e) {
-            System.out.println("❌ Error fetching schedule: " + e.getMessage());
+            System.out.println(" Error fetching schedule: " + e.getMessage());
             return Optional.empty();
         }
     }
@@ -91,7 +91,7 @@ public class ReportScheduleService {
             System.out.println("=== FETCHING SCHEDULES BY USER: " + user.getEmail() + " ===");
             return reportScheduleRepository.findByCreatedByOrderByCreatedAtDesc(user);
         } catch (Exception e) {
-            System.out.println("❌ Error fetching user schedules: " + e.getMessage());
+            System.out.println(" Error fetching user schedules: " + e.getMessage());
             return List.of();
         }
     }
@@ -101,7 +101,7 @@ public class ReportScheduleService {
             System.out.println("=== FETCHING SCHEDULES BY FREQUENCY: " + frequency + " ===");
             return reportScheduleRepository.findByFrequencyOrderByCreatedAtDesc(frequency);
         } catch (Exception e) {
-            System.out.println("❌ Error fetching schedules by frequency: " + e.getMessage());
+            System.out.println(" Error fetching schedules by frequency: " + e.getMessage());
             return List.of();
         }
     }
@@ -155,14 +155,14 @@ public class ReportScheduleService {
                 }
 
                 ReportSchedule updated = reportScheduleRepository.save(schedule);
-                System.out.println("✅ Schedule updated successfully");
+                System.out.println(" Schedule updated successfully");
                 return updated;
             } else {
-                System.out.println("❌ Schedule not found");
+                System.out.println(" Schedule not found");
                 return null;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error updating schedule: " + e.getMessage());
+            System.out.println(" Error updating schedule: " + e.getMessage());
             throw new RuntimeException("Failed to update schedule", e);
         }
     }
@@ -177,14 +177,14 @@ public class ReportScheduleService {
                 schedule.setIsActive(!schedule.getIsActive());
 
                 ReportSchedule updated = reportScheduleRepository.save(schedule);
-                System.out.println("✅ Schedule status toggled: " + updated.getIsActive());
+                System.out.println(" Schedule status toggled: " + updated.getIsActive());
                 return updated;
             } else {
-                System.out.println("❌ Schedule not found");
+                System.out.println(" Schedule not found");
                 return null;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error toggling schedule: " + e.getMessage());
+            System.out.println(" Error toggling schedule: " + e.getMessage());
             return null;
         }
     }
@@ -194,14 +194,14 @@ public class ReportScheduleService {
             System.out.println("=== DELETING SCHEDULE ID: " + id + " ===");
             if (reportScheduleRepository.existsById(id)) {
                 reportScheduleRepository.deleteById(id);
-                System.out.println("✅ Schedule deleted successfully");
+                System.out.println(" Schedule deleted successfully");
                 return true;
             } else {
-                System.out.println("❌ Schedule not found");
+                System.out.println(" Schedule not found");
                 return false;
             }
         } catch (Exception e) {
-            System.out.println("❌ Error deleting schedule: " + e.getMessage());
+            System.out.println(" Error deleting schedule: " + e.getMessage());
             return false;
         }
     }
